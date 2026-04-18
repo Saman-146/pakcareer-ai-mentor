@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PakCareer AI — Career Mentor for Pakistan</title>
-<meta name="description" content="AI-powered career mentor for Pakistani students and professionals. Get personalized career advice, resume analysis, and job recommendations."/>
+<meta name="description" content="AI-powered career mentor for Pakistani students and professionals."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -24,9 +24,7 @@
     --font-head: 'Syne', sans-serif;
     --font-body: 'DM Sans', sans-serif;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     background: var(--bg);
     color: var(--text);
@@ -36,15 +34,11 @@
     flex-direction: column;
     overflow: hidden;
   }
-
-  /* ── Subtle animated background ── */
   body::before {
     content: '';
     position: fixed;
-    top: -30%;
-    left: -20%;
-    width: 60vw;
-    height: 60vw;
+    top: -30%; left: -20%;
+    width: 60vw; height: 60vw;
     background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
     pointer-events: none;
     animation: drift 12s ease-in-out infinite alternate;
@@ -52,7 +46,6 @@
   }
   @keyframes drift { from { transform: translate(0,0); } to { transform: translate(8vw, 6vh); } }
 
-  /* ── Header ── */
   header {
     display: flex;
     align-items: center;
@@ -65,234 +58,97 @@
     z-index: 10;
     flex-shrink: 0;
   }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+  .logo { display: flex; align-items: center; gap: 10px; }
   .logo-icon {
-    width: 34px;
-    height: 34px;
+    width: 34px; height: 34px;
     background: var(--green);
     border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 17px;
   }
-
-  .logo-text {
-    font-family: var(--font-head);
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-
+  .logo-text { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
   .logo-text span { color: var(--green); }
-
   .header-tabs {
-    display: flex;
-    gap: 4px;
+    display: flex; gap: 4px;
     background: var(--surface);
-    border-radius: 12px;
-    padding: 4px;
+    border-radius: 12px; padding: 4px;
   }
-
   .tab-btn {
-    background: none;
-    border: none;
+    background: none; border: none;
     color: var(--text-dim);
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 7px 16px;
-    border-radius: 9px;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
+    font-family: var(--font-body); font-size: 13px; font-weight: 500;
+    padding: 7px 16px; border-radius: 9px;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
-
-  .tab-btn.active {
-    background: var(--surface2);
-    color: var(--text);
-  }
-
+  .tab-btn.active { background: var(--surface2); color: var(--text); }
   .tab-btn:hover:not(.active) { color: var(--text); }
 
-  /* ── Main area ── */
-  main {
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-  }
-
-  .panel {
-    display: none;
-    height: 100%;
-    flex-direction: column;
-  }
+  main { flex: 1; overflow: hidden; position: relative; z-index: 1; }
+  .panel { display: none; height: 100%; flex-direction: column; }
   .panel.active { display: flex; }
 
-  /* ── CHAT PANEL ── */
-  #chat-panel { padding: 0; }
-
   .messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 0;
-    scroll-behavior: smooth;
+    flex: 1; overflow-y: auto;
+    padding: 24px 0; scroll-behavior: smooth;
   }
-
   .messages::-webkit-scrollbar { width: 4px; }
   .messages::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
 
   .message-row {
-    display: flex;
-    padding: 6px 24px;
-    gap: 12px;
+    display: flex; padding: 6px 24px; gap: 12px;
     animation: fadeUp 0.3s ease;
   }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   .message-row.user { flex-direction: row-reverse; }
 
   .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 2px;
+    width: 32px; height: 32px; border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; margin-top: 2px;
   }
-
-  .avatar.bot {
-    background: var(--green);
-    color: #000;
-    font-family: var(--font-head);
-  }
-
-  .avatar.user {
-    background: var(--surface2);
-    color: var(--text-dim);
-  }
+  .avatar.bot { background: var(--green); color: #000; font-family: var(--font-head); }
+  .avatar.user { background: var(--surface2); color: var(--text-dim); }
 
   .bubble {
     max-width: min(520px, 75vw);
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-size: 14.5px;
-    line-height: 1.7;
+    padding: 12px 16px; border-radius: var(--radius);
+    font-size: 14.5px; line-height: 1.7;
   }
-
   .bubble.bot {
-    background: var(--bot-bubble);
-    border: 1px solid var(--border);
-    border-top-left-radius: 6px;
-    color: var(--text);
+    background: var(--bot-bubble); border: 1px solid var(--border);
+    border-top-left-radius: 6px; color: var(--text);
   }
-
   .bubble.user {
-    background: var(--user-bubble);
-    border: 1px solid rgba(16,185,129,0.2);
-    border-top-right-radius: 6px;
-    color: var(--text);
+    background: var(--user-bubble); border: 1px solid rgba(16,185,129,0.2);
+    border-top-right-radius: 6px; color: var(--text);
   }
 
-  /* Welcome screen */
   .welcome {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 16px;
-    padding: 32px;
-    text-align: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; gap: 16px; padding: 32px; text-align: center;
   }
-
   .welcome-icon {
-    width: 64px;
-    height: 64px;
-    background: var(--green-dim);
-    border: 1px solid var(--green-glow);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
+    width: 64px; height: 64px;
+    background: var(--green-dim); border: 1px solid var(--green-glow);
+    border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px;
   }
-
-  .welcome h2 {
-    font-family: var(--font-head);
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-
-  .welcome p {
-    color: var(--text-dim);
-    font-size: 15px;
-    max-width: 400px;
-  }
-
-  .suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 8px;
-  }
-
+  .welcome h2 { font-family: var(--font-head); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .welcome p { color: var(--text-dim); font-size: 15px; max-width: 400px; }
+  .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
   .suggestion-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-family: var(--font-body);
-    font-size: 13px;
-    padding: 8px 16px;
-    border-radius: 100px;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--font-body); font-size: 13px;
+    padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all 0.2s;
   }
+  .suggestion-chip:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
 
-  .suggestion-chip:hover {
-    border-color: var(--green);
-    color: var(--green);
-    background: var(--green-dim);
-  }
-
-  /* Typing indicator */
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 12px 16px;
-  }
-  .dot {
-    width: 7px; height: 7px;
-    background: var(--text-dim);
-    border-radius: 50%;
-    animation: bounce 1.2s infinite;
-  }
+  .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 12px 16px; }
+  .dot { width: 7px; height: 7px; background: var(--text-dim); border-radius: 50%; animation: bounce 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce {
-    0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
-  }
+  @keyframes bounce { 0%,80%,100% { transform:scale(0.7); opacity:0.4; } 40% { transform:scale(1); opacity:1; } }
 
-  /* ── Input area ── */
   .input-area {
     padding: 16px 24px 20px;
     background: rgba(15,15,16,0.9);
@@ -300,259 +156,96 @@
     border-top: 1px solid var(--border);
     flex-shrink: 0;
   }
-
   .input-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 12px 16px;
+    display: flex; align-items: flex-end; gap: 10px;
     transition: border-color 0.2s;
   }
-
-  .input-box:focus-within {
-    border-color: rgba(16,185,129,0.4);
-  }
-
+  .input-box:focus-within { border-color: rgba(16,185,129,0.4); }
   #user-input {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 14.5px;
-    resize: none;
-    max-height: 120px;
-    line-height: 1.5;
-    padding: 2px 0;
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text); font-family: var(--font-body); font-size: 14.5px;
+    resize: none; max-height: 120px; line-height: 1.5; padding: 2px 0;
   }
-
   #user-input::placeholder { color: var(--text-dim); }
 
   .icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    width: 36px; height: 36px; border-radius: 10px; border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
   }
-
-  .send-btn {
-    background: var(--green);
-    color: #000;
-  }
+  .send-btn { background: var(--green); color: #000; }
   .send-btn:hover { background: #0ea572; transform: scale(1.05); }
   .send-btn:disabled { background: var(--surface2); color: var(--text-dim); transform: none; cursor: not-allowed; }
-
-  .mic-btn {
-    background: var(--surface2);
-    color: var(--text-dim);
-  }
+  .mic-btn { background: var(--surface2); color: var(--text-dim); }
   .mic-btn:hover { color: var(--green); background: var(--green-dim); }
-  .mic-btn.recording {
-    background: rgba(239,68,68,0.15);
-    color: #ef4444;
-    animation: pulse-red 1s infinite;
-  }
+  .mic-btn.recording { background: rgba(239,68,68,0.15); color: #ef4444; animation: pulse-red 1s infinite; }
+  @keyframes pulse-red { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
 
-  @keyframes pulse-red {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
-    50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
-  }
+  .input-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; opacity: 0.6; }
 
-  .input-hint {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 8px;
-    opacity: 0.6;
-  }
-
-  /* Voice status bar */
   #voice-status {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.25);
-    border-radius: 10px;
-    padding: 8px 14px;
-    margin-bottom: 10px;
-    font-size: 13px;
-    color: #ef4444;
+    display: none; align-items: center; gap: 8px;
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 10px; padding: 8px 14px; margin-bottom: 10px;
+    font-size: 13px; color: #ef4444;
   }
-
   #voice-status.show { display: flex; }
+  .rec-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; animation: pulse-red 1s infinite; flex-shrink: 0; }
 
-  .rec-dot {
-    width: 8px; height: 8px;
-    background: #ef4444;
-    border-radius: 50%;
-    animation: pulse-red 1s infinite;
-    flex-shrink: 0;
-  }
-
-  /* Audio player */
-  .audio-reply {
-    background: var(--green-dim);
-    border: 1px solid var(--green-glow);
-    border-radius: 10px;
-    padding: 8px 12px;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--green);
-  }
-
-  audio { width: 100%; height: 28px; margin-top: 4px; }
-  audio::-webkit-media-controls-panel { background: var(--surface2); }
-
-  /* ── RESUME PANEL ── */
-  #resume-panel {
-    padding: 32px 24px;
-    overflow-y: auto;
-    gap: 20px;
-  }
-
-  .panel-title {
-    font-family: var(--font-head);
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
+  #resume-panel, #jobs-panel { padding: 32px 24px; overflow-y: auto; gap: 20px; }
+  .panel-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; margin-bottom: 4px; }
   .panel-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
 
   .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 40px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--surface);
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 40px; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: var(--surface); display: block;
   }
-
-  .upload-zone:hover, .upload-zone.drag {
-    border-color: var(--green);
-    background: var(--green-dim);
-  }
-
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: var(--green-dim); }
   .upload-zone input { display: none; }
-
   .upload-icon { font-size: 36px; margin-bottom: 12px; }
   .upload-zone p { color: var(--text-dim); font-size: 14px; }
   .upload-zone strong { color: var(--green); }
 
   .action-btn {
-    background: var(--green);
-    color: #000;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 28px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
+    background: var(--green); color: #000; border: none; border-radius: 12px;
+    padding: 12px 28px; font-family: var(--font-body); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; width: 100%;
   }
-
   .action-btn:hover { background: #0ea572; }
   .action-btn:disabled { background: var(--surface2); color: var(--text-dim); cursor: not-allowed; }
 
   .result-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    display: none;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; display: none;
   }
-
   .result-card.show { display: block; }
-
-  .result-card h3 {
-    font-family: var(--font-head);
-    font-size: 16px;
-    margin-bottom: 12px;
-    color: var(--green);
-  }
-
+  .result-card h3 { font-family: var(--font-head); font-size: 16px; margin-bottom: 12px; color: var(--green); }
   .result-card p { font-size: 14px; line-height: 1.7; color: var(--text-dim); }
-
   .role-badge {
-    display: inline-block;
-    background: var(--green-dim);
-    border: 1px solid var(--green-glow);
-    color: var(--green);
-    font-size: 13px;
-    padding: 6px 14px;
-    border-radius: 100px;
-    margin-top: 10px;
-  }
-
-  /* ── JOBS PANEL ── */
-  #jobs-panel {
-    padding: 32px 24px;
-    overflow-y: auto;
-    gap: 20px;
+    display: inline-block; background: var(--green-dim); border: 1px solid var(--green-glow);
+    color: var(--green); font-size: 13px; padding: 6px 14px; border-radius: 100px; margin-top: 10px;
   }
 
   .jobs-list { display: flex; flex-direction: column; gap: 12px; }
-
   .job-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    transition: border-color 0.2s;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; transition: border-color 0.2s;
   }
-
   .job-card:hover { border-color: var(--green); }
+  .job-card pre { font-family: var(--font-body); font-size: 14px; line-height: 1.7; white-space: pre-wrap; color: var(--text-dim); }
 
-  .job-card pre {
-    font-family: var(--font-body);
-    font-size: 14px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    color: var(--text-dim);
-  }
-
-  /* ── Loader ── */
-  .loader {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-dim);
-    font-size: 13px;
-    padding: 12px 0;
-  }
+  .loader { display: none; align-items: center; gap: 10px; color: var(--text-dim); font-size: 13px; padding: 12px 0; }
   .loader.show { display: flex; }
-  .spinner {
-    width: 18px; height: 18px;
-    border: 2px solid var(--border);
-    border-top-color: var(--green);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
 
-  /* ── Mobile ── */
   @media (max-width: 600px) {
     header { padding: 12px 16px; }
     .logo-text { font-size: 16px; }
@@ -565,29 +258,26 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header>
   <div class="logo">
     <div class="logo-icon">🇵🇰</div>
     <div class="logo-text">Pak<span>Career</span> AI</div>
   </div>
   <div class="header-tabs">
-    <button class="tab-btn active" onclick="switchTab('chat')">💬 Chat</button>
-    <button class="tab-btn" onclick="switchTab('resume')">📄 Resume</button>
-    <button class="tab-btn" onclick="switchTab('jobs')">💼 Jobs</button>
+    <button class="tab-btn active" onclick="switchTab('chat', this)">💬 Chat</button>
+    <button class="tab-btn" onclick="switchTab('resume', this)">📄 Resume</button>
+    <button class="tab-btn" onclick="switchTab('jobs', this)">💼 Jobs</button>
   </div>
 </header>
 
-<!-- ── MAIN ── -->
 <main>
-
-  <!-- CHAT PANEL -->
+  <!-- CHAT -->
   <div class="panel active" id="chat-panel">
     <div class="messages" id="messages">
       <div class="welcome" id="welcome-screen">
         <div class="welcome-icon">🎓</div>
         <h2>Your Career Mentor</h2>
-        <p>Ask me anything about careers in Pakistan. I speak — you speak. Let's build your future together.</p>
+        <p>Ask me anything about careers in Pakistan. Type or speak — I will guide you.</p>
         <div class="suggestions">
           <button class="suggestion-chip" onclick="sendSuggestion(this)">I'm in 12th class, what should I do?</button>
           <button class="suggestion-chip" onclick="sendSuggestion(this)">Best careers in Pakistan 2025</button>
@@ -596,7 +286,6 @@
         </div>
       </div>
     </div>
-
     <div class="input-area">
       <div id="voice-status">
         <div class="rec-dot"></div>
@@ -620,11 +309,10 @@
     </div>
   </div>
 
-  <!-- RESUME PANEL -->
+  <!-- RESUME -->
   <div class="panel" id="resume-panel">
     <div class="panel-title">Resume Analysis</div>
     <div class="panel-sub">Upload your CV and get personalized career advice for Pakistan's job market.</div>
-
     <label class="upload-zone" id="upload-zone" for="pdf-input"
       ondragover="event.preventDefault(); this.classList.add('drag')"
       ondragleave="this.classList.remove('drag')"
@@ -634,87 +322,97 @@
       <p><strong>Click to upload</strong> or drag & drop your PDF</p>
       <p style="margin-top:6px; font-size:12px;" id="file-name">No file selected</p>
     </label>
-
-    <button class="action-btn" id="analyze-btn" onclick="analyzeResume()" disabled>
-      🔍 Analyze My Resume
-    </button>
-
-    <div class="loader" id="resume-loader">
-      <div class="spinner"></div>
-      <span>Analyzing your CV for Pakistani job market...</span>
-    </div>
-
+    <button class="action-btn" id="analyze-btn" onclick="analyzeResume()" disabled>🔍 Analyze My Resume</button>
+    <div class="loader" id="resume-loader"><div class="spinner"></div><span>Analyzing your CV...</span></div>
     <div class="result-card" id="resume-result">
       <h3>📝 Summary</h3>
       <p id="result-summary"></p>
       <h3 style="margin-top:16px;">🏢 Experience</h3>
       <p id="result-companies"></p>
-      <div>
-        <span class="role-badge" id="result-role"></span>
-      </div>
+      <div><span class="role-badge" id="result-role"></span></div>
     </div>
   </div>
 
-  <!-- JOBS PANEL -->
+  <!-- JOBS -->
   <div class="panel" id="jobs-panel">
     <div class="panel-title">Job Finder</div>
     <div class="panel-sub">Find real job opportunities in Pakistan matching your profile.</div>
-
-    <button class="action-btn" id="jobs-btn" onclick="findJobs()">
-      🔎 Find Jobs for Me
-    </button>
-
-    <div class="loader" id="jobs-loader">
-      <div class="spinner"></div>
-      <span>Searching Pakistani job market...</span>
-    </div>
-
+    <button class="action-btn" id="jobs-btn" onclick="findJobs()">🔎 Find Jobs for Me</button>
+    <div class="loader" id="jobs-loader"><div class="spinner"></div><span>Searching Pakistani job market...</span></div>
     <div class="jobs-list" id="jobs-list"></div>
   </div>
-
 </main>
 
-<!-- ── HIDDEN AUDIO PLAYER ── -->
 <audio id="reply-audio" style="display:none"></audio>
 
 <script>
-
+// ── YOUR HUGGING FACE SPACE URL ──
 const HF_URL = "https://slm146-pakcareer-ai-mentor.hf.space";
 
 // ── STATE ──
 let chatHistory = [];
-let resumeText  = "";
+let resumeText = "";
 let identifiedRole = "";
 let pdfFile = null;
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
+let gradioSessionHash = Math.random().toString(36).substring(2);
 
 // ── TAB SWITCHING ──
-function switchTab(tab) {
+function switchTab(tab, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(tab + '-panel').classList.add('active');
-  event.currentTarget.classList.add('active');
+  btn.classList.add('active');
 }
 
-// ── AUTO RESIZE TEXTAREA ──
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
-// ── SEND SUGGESTION CHIP ──
 function sendSuggestion(btn) {
   document.getElementById('user-input').value = btn.textContent;
   sendMessage();
+}
+
+// ── CORE API CALL — works with Gradio 4/5/6 ──
+async function callGradio(fnIndex, inputData) {
+  const response = await fetch(`${HF_URL}/queue/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fn_index: fnIndex,
+      data: inputData,
+      session_hash: gradioSessionHash
+    })
+  });
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const joined = await response.json();
+
+  // Poll for result
+  return new Promise((resolve, reject) => {
+    const evtSource = new EventSource(`${HF_URL}/queue/data?session_hash=${gradioSessionHash}`);
+    evtSource.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.msg === 'process_completed') {
+          evtSource.close();
+          resolve(msg.output);
+        } else if (msg.msg === 'queue_full' || msg.msg === 'estimation') {
+          // still waiting, do nothing
+        }
+      } catch(err) { evtSource.close(); reject(err); }
+    };
+    evtSource.onerror = () => { evtSource.close(); reject(new Error('Connection lost')); };
+    setTimeout(() => { evtSource.close(); reject(new Error('Timeout')); }, 60000);
+  });
 }
 
 // ── SEND MESSAGE ──
@@ -732,41 +430,32 @@ async function sendMessage() {
   setSendDisabled(true);
 
   try {
-    const res = await fetch(`${HF_URL}/run/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        data: [text, chatHistory, resumeText]
-      })
-    });
-
-    const json = await res.json();
+    // fn_index 2 = career_chat in app.py
+    const result = await callGradio(2, [text, chatHistory, resumeText]);
     removeTyping(typingId);
 
-    // Gradio returns array; history is [0], audio path is [1]
-    const newHistory = json.data[0];
-    const audioPath  = json.data[1];
+    const newHistory = result.data[0];
+    const audioPath  = result.data[1];
+    chatHistory = newHistory || [];
 
-    chatHistory = newHistory;
-
-    // Get last bot message
     let botReply = "";
-    if (Array.isArray(newHistory) && newHistory.length > 0) {
-      const last = newHistory[newHistory.length - 1];
-      botReply = typeof last === 'object' ? last.content : (last[1] || "");
+    if (Array.isArray(chatHistory) && chatHistory.length > 0) {
+      const last = chatHistory[chatHistory.length - 1];
+      botReply = typeof last === 'object' && last.content ? last.content : (Array.isArray(last) ? last[1] : "");
     }
 
-    addMessage('bot', botReply, audioPath);
+    addMessage('bot', botReply || "I received your message!", audioPath);
 
   } catch (err) {
     removeTyping(typingId);
-    addMessage('bot', "⚠️ Connection error. Make sure your Hugging Face Space is running and the URL is set correctly in this file.");
+    addMessage('bot', `⚠️ Error: ${err.message}. Please try again.`);
+    console.error(err);
   }
 
   setSendDisabled(false);
 }
 
-// ── ADD MESSAGE TO CHAT ──
+// ── ADD MESSAGE ──
 function hideWelcome() {
   const w = document.getElementById('welcome-screen');
   if (w) w.style.display = 'none';
@@ -785,17 +474,15 @@ function addMessage(role, text, audioPath = null) {
   bubble.className = `bubble ${role}`;
   bubble.textContent = text;
 
-  // Attach audio player for bot replies
   if (role === 'bot' && audioPath) {
+    const audioUrl = audioPath.startsWith('http') ? audioPath : `${HF_URL}/file=${audioPath}`;
     const audioWrap = document.createElement('div');
-    audioWrap.className = 'audio-reply';
-    audioWrap.innerHTML = `🔊 <audio controls src="${HF_URL}/file=${audioPath}" style="flex:1;height:28px;"></audio>`;
+    audioWrap.style.cssText = 'background:rgba(16,185,129,0.1);border-radius:8px;padding:6px 10px;margin-top:8px;';
+    audioWrap.innerHTML = `<audio controls src="${audioUrl}" style="width:100%;height:28px;"></audio>`;
     bubble.appendChild(audioWrap);
-
-    // Auto-play
-    const audioEl = document.getElementById('reply-audio');
-    audioEl.src = `${HF_URL}/file=${audioPath}`;
-    audioEl.play().catch(() => {});
+    const autoAudio = document.getElementById('reply-audio');
+    autoAudio.src = audioUrl;
+    autoAudio.play().catch(() => {});
   }
 
   row.appendChild(avatar);
@@ -812,34 +499,17 @@ function addTyping() {
   const row = document.createElement('div');
   row.className = 'message-row bot';
   row.id = id;
-  row.innerHTML = `
-    <div class="avatar bot">AI</div>
-    <div class="bubble bot">
-      <div class="typing-indicator">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      </div>
-    </div>`;
+  row.innerHTML = `<div class="avatar bot">AI</div><div class="bubble bot"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
   messages.appendChild(row);
   messages.scrollTop = messages.scrollHeight;
   return id;
 }
-
-function removeTyping(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
-}
-
-function setSendDisabled(val) {
-  document.getElementById('send-btn').disabled = val;
-}
+function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+function setSendDisabled(val) { document.getElementById('send-btn').disabled = val; }
 
 // ── VOICE RECORDING ──
 async function toggleRecording() {
-  if (!isRecording) {
-    await startRecording();
-  } else {
-    stopRecording();
-  }
+  if (!isRecording) { await startRecording(); } else { stopRecording(); }
 }
 
 async function startRecording() {
@@ -847,17 +517,14 @@ async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(stream);
     audioChunks = [];
-
     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
     mediaRecorder.onstop = sendVoiceMessage;
     mediaRecorder.start();
-
     isRecording = true;
     document.getElementById('mic-btn').classList.add('recording');
     document.getElementById('voice-status').classList.add('show');
-
   } catch (err) {
-    alert('Microphone access denied. Please allow microphone access in your browser settings.');
+    alert('Microphone access denied. Please allow microphone in browser settings.');
   }
 }
 
@@ -868,7 +535,6 @@ function stopRecording() {
     isRecording = false;
     document.getElementById('mic-btn').classList.remove('recording');
     document.getElementById('voice-status').classList.remove('show');
-    document.getElementById('voice-status-text').textContent = 'Processing your voice...';
   }
 }
 
@@ -878,49 +544,34 @@ async function sendVoiceMessage() {
   formData.append('files', blob, 'voice.webm');
 
   try {
-    // Upload audio to HF Space
-    const uploadRes = await fetch(`${HF_URL}/upload`, {
-      method: 'POST',
-      body: formData
-    });
+    const uploadRes = await fetch(`${HF_URL}/upload`, { method: 'POST', body: formData });
     const uploadData = await uploadRes.json();
     const uploadedPath = uploadData[0];
 
-    // Call transcription endpoint
-    const transcribeRes = await fetch(`${HF_URL}/run/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fn_index: 0,  // handle_voice function index
-        data: [{ name: uploadedPath, is_file: true }, chatHistory, resumeText]
-      })
-    });
+    // fn_index 3 = handle_voice
+    const result = await callGradio(3, [{ name: uploadedPath, is_file: true }, chatHistory, resumeText]);
 
-    const transcribeData = await transcribeRes.json();
-    const newHistory = transcribeData.data[0];
-    const audioPath  = transcribeData.data[1];
-    const transcribedText = transcribeData.data[2] || "";
+    const newHistory = result.data[0];
+    const audioPath  = result.data[1];
+    const transcribed = result.data[2] || "";
 
-    chatHistory = newHistory;
+    chatHistory = newHistory || [];
     hideWelcome();
 
-    // Show what was heard
-    if (transcribedText && !transcribedText.startsWith('⚠️')) {
-      addMessage('user', `🎙️ ${transcribedText}`);
+    if (transcribed && !transcribed.startsWith('⚠️')) {
+      addMessage('user', `🎙️ ${transcribed}`);
     }
 
     let botReply = "";
-    if (Array.isArray(newHistory) && newHistory.length > 0) {
-      const last = newHistory[newHistory.length - 1];
-      botReply = typeof last === 'object' ? last.content : (last[1] || "");
+    if (Array.isArray(chatHistory) && chatHistory.length > 0) {
+      const last = chatHistory[chatHistory.length - 1];
+      botReply = typeof last === 'object' && last.content ? last.content : (Array.isArray(last) ? last[1] : "");
     }
     if (botReply) addMessage('bot', botReply, audioPath);
 
   } catch (err) {
-    addMessage('bot', '⚠️ Voice message failed. Please try typing instead.');
+    addMessage('bot', `⚠️ Voice failed: ${err.message}. Please try typing.`);
   }
-
-  document.getElementById('voice-status-text').textContent = 'Recording... click mic again to stop';
 }
 
 // ── RESUME ──
@@ -946,52 +597,31 @@ function handleDrop(e) {
 
 async function analyzeResume() {
   if (!pdfFile) return;
-
   document.getElementById('resume-loader').classList.add('show');
   document.getElementById('analyze-btn').disabled = true;
   document.getElementById('resume-result').classList.remove('show');
 
   try {
-    // Upload PDF
     const formData = new FormData();
     formData.append('files', pdfFile, pdfFile.name);
-
-    const uploadRes = await fetch(`${HF_URL}/upload`, {
-      method: 'POST',
-      body: formData
-    });
+    const uploadRes = await fetch(`${HF_URL}/upload`, { method: 'POST', body: formData });
     const uploadData = await uploadRes.json();
     const uploadedPath = uploadData[0];
 
-    // Analyze
-    const analyzeRes = await fetch(`${HF_URL}/run/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fn_index: 1,
-        data: [{ name: uploadedPath, is_file: true }]
-      })
-    });
+    // fn_index 1 = process_resume
+    const result = await callGradio(1, [{ name: uploadedPath, is_file: true }]);
 
-    const data = await analyzeRes.json();
-    const summary = data.data[0] || "";
-    identifiedRole = data.data[1] || "N/A";
-    resumeText = data.data[2] || "";
+    const summary = result.data[0] || "";
+    identifiedRole = result.data[1] || "N/A";
+    resumeText = result.data[2] || "";
 
-    // Parse markdown display
-    const summaryMatch = summary.match(/\*\*📝 Summary\*\*\n([\s\S]*?)\n\n/);
-    const companiesMatch = summary.match(/\*\*🏢 Companies\*\*\n([\s\S]*?)(?:\n\n|$)/);
-
-    document.getElementById('result-summary').textContent =
-      summaryMatch ? summaryMatch[1] : summary.replace(/[#*]/g, '').trim();
-    document.getElementById('result-companies').textContent =
-      companiesMatch ? companiesMatch[1] : '';
+    document.getElementById('result-summary').textContent = summary.replace(/[#*]/g, '').replace(/📝 Summary|🏢 Companies|🎯 Role:/g, '').trim();
+    document.getElementById('result-companies').textContent = identifiedRole;
     document.getElementById('result-role').textContent = `🎯 ${identifiedRole}`;
-
     document.getElementById('resume-result').classList.add('show');
 
   } catch (err) {
-    alert('Resume analysis failed. Please check your Hugging Face Space URL.');
+    alert(`Resume analysis failed: ${err.message}`);
   }
 
   document.getElementById('resume-loader').classList.remove('show');
@@ -1007,25 +637,15 @@ async function findJobs() {
   const role = identifiedRole || 'Software Engineer';
 
   try {
-    const res = await fetch(`${HF_URL}/run/predict`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fn_index: 4,
-        data: [role]
-      })
-    });
-
-    const data = await res.json();
-    const result = data.data[0] || "No results found.";
-
+    // fn_index 4 = find_jobs
+    const result = await callGradio(4, [role]);
+    const jobText = result.data[0] || "No results found.";
     const card = document.createElement('div');
     card.className = 'job-card';
-    card.innerHTML = `<pre>${result}</pre>`;
+    card.innerHTML = `<pre>${jobText}</pre>`;
     document.getElementById('jobs-list').appendChild(card);
-
   } catch (err) {
-    document.getElementById('jobs-list').innerHTML = '<p style="color:var(--text-dim)">⚠️ Job search failed. Check your Space URL.</p>';
+    document.getElementById('jobs-list').innerHTML = `<p style="color:var(--text-dim)">⚠️ Failed: ${err.message}</p>`;
   }
 
   document.getElementById('jobs-loader').classList.remove('show');

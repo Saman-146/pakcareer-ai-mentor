@@ -97,7 +97,7 @@
   .upload-zone p{color:var(--text-dim);font-size:14px;}
   .upload-zone strong{color:var(--green);}
 
-  .action-btn{background:var(--green);color:#000;border:none;border-radius:12px;padding:12px 28px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;width:100%;}
+  .action-btn{background:var(--green);color:#000;border:none;border-radius:12px;padding:12px 28px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;width:100%;margin-bottom:12px;}
   .action-btn:hover{background:#0ea572;}
   .action-btn:disabled{background:var(--surface2);color:var(--text-dim);cursor:not-allowed;}
 
@@ -117,17 +117,14 @@
   .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  .status-bar{background:rgba(16,185,129,0.1);border:1px solid var(--green-glow);border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:13px;color:var(--green);display:none;}
-  .status-bar.show{display:block;}
-
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:2px;}
 
   @media(max-width:600px){
     header{padding:12px 16px;}
-    .logo-text{font-size:16px;}
-    .tab-btn{padding:6px 10px;font-size:12px;}
+    .logo-text{font-size:15px;}
+    .tab-btn{padding:6px 8px;font-size:11px;}
     .message-row{padding:6px 16px;}
     .input-area{padding:12px 16px 16px;}
     #resume-panel,#jobs-panel{padding:20px 16px;}
@@ -167,7 +164,7 @@
     <div class="input-area">
       <div id="voice-status">
         <div class="rec-dot"></div>
-        <span id="voice-status-text">Recording... click mic again to stop</span>
+        <span id="voice-status-text">🔴 Recording... click mic again to stop</span>
       </div>
       <div class="input-box">
         <textarea id="user-input" placeholder="Ask your career question..." rows="1"
@@ -197,14 +194,16 @@
       ondrop="handleDrop(event)">
       <input type="file" id="pdf-input" accept=".pdf" onchange="handleFile(event)">
       <div class="upload-icon">📄</div>
-      <p><strong>Click to upload</strong> or drag & drop your PDF</p>
-      <p style="margin-top:6px;font-size:12px;" id="file-name">No file selected</p>
+      <p><strong>Click to upload</strong> or drag & drop your PDF resume</p>
+      <p style="margin-top:6px;font-size:12px;color:var(--green);" id="file-name">No file selected</p>
     </label>
     <button class="action-btn" id="analyze-btn" onclick="analyzeResume()" disabled>🔍 Analyze My Resume</button>
-    <div class="loader" id="resume-loader"><div class="spinner"></div><span>Analyzing your CV...</span></div>
+    <div class="loader" id="resume-loader"><div class="spinner"></div><span>Analyzing your CV for Pakistani job market...</span></div>
     <div class="result-card" id="resume-result">
       <h3>📝 Summary</h3>
       <p id="result-summary"></p>
+      <h3 style="margin-top:16px;">🏢 Companies</h3>
+      <p id="result-companies"></p>
       <h3 style="margin-top:16px;">🎯 Identified Role</h3>
       <div><span class="role-badge" id="result-role"></span></div>
     </div>
@@ -213,7 +212,7 @@
   <!-- JOBS -->
   <div class="panel" id="jobs-panel">
     <div class="panel-title">Job Finder</div>
-    <div class="panel-sub">Find real job opportunities in Pakistan matching your profile.</div>
+    <div class="panel-sub">Find real job opportunities in Pakistan matching your profile. Analyze resume first for best results.</div>
     <button class="action-btn" id="jobs-btn" onclick="findJobs()">🔎 Find Jobs for Me</button>
     <div class="loader" id="jobs-loader"><div class="spinner"></div><span>Searching Pakistani job market...</span></div>
     <div class="jobs-list" id="jobs-list"></div>
@@ -222,11 +221,9 @@
 
 <audio id="reply-audio" style="display:none"></audio>
 
-<!-- Official Gradio JS Client -->
 <script type="module">
   import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-  // ── YOUR SPACE ──
   const SPACE = "SLM146/pakcareer-ai-mentor";
 
   let gradioClient = null;
@@ -238,43 +235,46 @@
   let audioChunks = [];
   let isRecording = false;
 
-  // Connect to Gradio Space on load
+  // Connect on load
   async function connectClient() {
     try {
       gradioClient = await Client.connect(SPACE);
-      console.log("Connected to Gradio Space!");
+      console.log("✅ Connected to Gradio Space");
     } catch(e) {
-      console.error("Connection failed:", e);
+      console.error("❌ Connection failed:", e);
+      setTimeout(connectClient, 3000); // retry after 3 seconds
     }
   }
   connectClient();
 
-  // ── Make functions global so HTML onclick works ──
-  window.switchTab = function(tab, btn) {
+  // ── Global functions ──
+  window.switchTab = (tab, btn) => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tab + '-panel').classList.add('active');
+    document.getElementById(tab+'-panel').classList.add('active');
     btn.classList.add('active');
   };
 
-  window.autoResize = function(el) {
+  window.autoResize = el => {
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    el.style.height = Math.min(el.scrollHeight, 120)+'px';
   };
 
-  window.handleKey = function(e) {
+  window.handleKey = e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMessage(); }
   };
 
-  window.sendSuggestion = function(btn) {
+  window.sendSuggestion = btn => {
     document.getElementById('user-input').value = btn.textContent;
     window.sendMessage();
   };
 
-  window.sendMessage = async function() {
+  // ── SEND TEXT MESSAGE — no audio ──
+  window.sendMessage = async () => {
     const input = document.getElementById('user-input');
     const text = input.value.trim();
-    if (!text || !gradioClient) return;
+    if (!text) return;
+    if (!gradioClient) { alert('Still connecting... please wait a moment.'); return; }
 
     hideWelcome();
     addMessage('user', text);
@@ -285,7 +285,8 @@
     setSendDisabled(true);
 
     try {
-      const result = await gradioClient.predict("/career_chat", [
+      // calls career_chat_text — returns [history, ""]
+      const result = await gradioClient.predict("/career_chat_text", [
         text,
         chatHistory,
         resumeText
@@ -294,94 +295,23 @@
       removeTyping(typingId);
 
       const newHistory = result.data[0];
-      const audioData  = result.data[1];
-      chatHistory = newHistory || [];
+      chatHistory = Array.isArray(newHistory) ? newHistory : [];
 
-      // Get last bot reply
-      let botReply = "";
-      if (Array.isArray(chatHistory) && chatHistory.length > 0) {
-        const last = chatHistory[chatHistory.length - 1];
-        botReply = (last && last.content) ? last.content : (Array.isArray(last) ? last[1] : String(last));
-      }
-
-      addMessage('bot', botReply || "Got your message!", audioData);
+      // Extract bot reply from last history item
+      const botReply = getLastBotReply(chatHistory);
+      addMessage('bot', botReply);  // TEXT ONLY — no audio
 
     } catch(err) {
       removeTyping(typingId);
-      addMessage('bot', "⚠️ Error: " + err.message + ". Please try again.");
+      addMessage('bot', "⚠️ Error: " + err.message);
       console.error(err);
     }
 
     setSendDisabled(false);
   };
 
-  function hideWelcome() {
-    const w = document.getElementById('welcome-screen');
-    if (w) w.style.display = 'none';
-  }
-
-  function addMessage(role, text, audioData = null) {
-    const messages = document.getElementById('messages');
-    const row = document.createElement('div');
-    row.className = `message-row ${role}`;
-
-    const avatar = document.createElement('div');
-    avatar.className = `avatar ${role}`;
-    avatar.textContent = role === 'bot' ? 'AI' : '👤';
-
-    const bubble = document.createElement('div');
-    bubble.className = `bubble ${role}`;
-    bubble.textContent = text;
-
-    if (role === 'bot' && audioData) {
-      try {
-        let audioUrl = '';
-        if (typeof audioData === 'string') {
-          audioUrl = audioData;
-        } else if (audioData && audioData.url) {
-          audioUrl = audioData.url;
-        } else if (audioData && audioData.path) {
-          audioUrl = `https://slm146-pakcareer-ai-mentor.hf.space/file=${audioData.path}`;
-        }
-        if (audioUrl) {
-          const audioWrap = document.createElement('div');
-          audioWrap.style.cssText = 'background:rgba(16,185,129,0.1);border-radius:8px;padding:6px 10px;margin-top:8px;';
-          const aud = document.createElement('audio');
-          aud.controls = true;
-          aud.src = audioUrl;
-          aud.style.cssText = 'width:100%;height:28px;';
-          audioWrap.appendChild(aud);
-          bubble.appendChild(audioWrap);
-          const autoAudio = document.getElementById('reply-audio');
-          autoAudio.src = audioUrl;
-          autoAudio.play().catch(() => {});
-        }
-      } catch(e) { console.log('Audio error:', e); }
-    }
-
-    row.appendChild(avatar);
-    row.appendChild(bubble);
-    messages.appendChild(row);
-    messages.scrollTop = messages.scrollHeight;
-  }
-
-  let typingCounter = 0;
-  function addTyping() {
-    const id = 'typing-' + (++typingCounter);
-    const messages = document.getElementById('messages');
-    const row = document.createElement('div');
-    row.className = 'message-row bot';
-    row.id = id;
-    row.innerHTML = `<div class="avatar bot">AI</div><div class="bubble bot"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-    messages.appendChild(row);
-    messages.scrollTop = messages.scrollHeight;
-    return id;
-  }
-  function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
-  function setSendDisabled(val) { document.getElementById('send-btn').disabled = val; }
-
-  // ── VOICE ──
-  window.toggleRecording = async function() {
+  // ── VOICE RECORDING ──
+  window.toggleRecording = async () => {
     if (!isRecording) { await startRecording(); } else { stopRecording(); }
   };
 
@@ -397,7 +327,7 @@
       document.getElementById('mic-btn').classList.add('recording');
       document.getElementById('voice-status').classList.add('show');
     } catch(err) {
-      alert('Microphone access denied. Please allow microphone in browser settings.');
+      alert('Microphone access denied. Please allow microphone in your browser settings.');
     }
   }
 
@@ -411,79 +341,97 @@
     }
   }
 
+  // ── SEND VOICE — returns text + audio ──
   async function sendVoiceMessage() {
-    if (!gradioClient) { addMessage('bot', '⚠️ Not connected yet. Please wait a moment and try again.'); return; }
+    if (!gradioClient) { addMessage('bot', '⚠️ Not connected yet. Please wait.'); return; }
+
     const blob = new Blob(audioChunks, { type: 'audio/webm' });
+    const typingId = addTyping();
+    hideWelcome();
+
     try {
-      const result = await gradioClient.predict("/handle_voice", [
+      // calls career_chat_voice — returns [history, audio_path, transcribed_text]
+      const result = await gradioClient.predict("/career_chat_voice", [
         blob,
         chatHistory,
         resumeText
       ]);
 
-      const newHistory = result.data[0];
-      const audioData  = result.data[1];
+      removeTyping(typingId);
+
+      const newHistory  = result.data[0];
+      const audioData   = result.data[1];
       const transcribed = result.data[2] || "";
 
-      chatHistory = newHistory || [];
-      hideWelcome();
+      chatHistory = Array.isArray(newHistory) ? newHistory : [];
 
+      // Show what user said
       if (transcribed && !transcribed.startsWith('⚠️')) {
-        addMessage('user', `🎙️ ${transcribed}`);
+        addMessage('user', '🎙️ ' + transcribed);
       }
 
-      let botReply = "";
-      if (Array.isArray(chatHistory) && chatHistory.length > 0) {
-        const last = chatHistory[chatHistory.length - 1];
-        botReply = (last && last.content) ? last.content : (Array.isArray(last) ? last[1] : "");
-      }
-      if (botReply) addMessage('bot', botReply, audioData);
+      // Show bot reply with audio
+      const botReply = getLastBotReply(chatHistory);
+      if (botReply) addMessage('bot', botReply, audioData);  // WITH audio
 
     } catch(err) {
-      addMessage('bot', `⚠️ Voice failed: ${err.message}. Please try typing.`);
+      removeTyping(typingId);
+      addMessage('bot', '⚠️ Voice failed: ' + err.message + '. Please try typing.');
+      console.error(err);
     }
   }
 
   // ── RESUME ──
-  window.handleFile = function(e) {
+  window.handleFile = e => {
     pdfFile = e.target.files[0];
     if (pdfFile) {
-      document.getElementById('file-name').textContent = `✅ ${pdfFile.name}`;
+      document.getElementById('file-name').textContent = '✅ ' + pdfFile.name;
       document.getElementById('analyze-btn').disabled = false;
       document.getElementById('upload-zone').style.borderColor = 'var(--green)';
     }
   };
 
-  window.handleDrop = function(e) {
+  window.handleDrop = e => {
     e.preventDefault();
     document.getElementById('upload-zone').classList.remove('drag');
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') {
       pdfFile = file;
-      document.getElementById('file-name').textContent = `✅ ${file.name}`;
+      document.getElementById('file-name').textContent = '✅ ' + file.name;
       document.getElementById('analyze-btn').disabled = false;
     }
   };
 
-  window.analyzeResume = async function() {
+  window.analyzeResume = async () => {
     if (!pdfFile || !gradioClient) return;
+
     document.getElementById('resume-loader').classList.add('show');
     document.getElementById('analyze-btn').disabled = true;
     document.getElementById('resume-result').classList.remove('show');
 
     try {
+      // Pass the file blob directly — Gradio client handles upload
       const result = await gradioClient.predict("/process_resume", [ pdfFile ]);
 
-      const summary = result.data[0] || "";
-      identifiedRole = result.data[1] || "N/A";
-      resumeText = result.data[2] || "";
+      const raw          = result.data[0] || "";
+      identifiedRole     = result.data[1] || "N/A";
+      resumeText         = result.data[2] || "";
 
-      document.getElementById('result-summary').textContent = summary.replace(/[#*✅📝🏢🎯]/g,'').trim();
-      document.getElementById('result-role').textContent = `🎯 ${identifiedRole}`;
+      // Clean markdown symbols for display
+      const clean = raw.replace(/[#*]/g, '').trim();
+
+      // Extract sections
+      const summaryMatch   = clean.match(/Summary\s*([\s\S]*?)(?:Companies|Role:|$)/i);
+      const companiesMatch = clean.match(/Companies\s*([\s\S]*?)(?:Role:|$)/i);
+
+      document.getElementById('result-summary').textContent   = summaryMatch   ? summaryMatch[1].trim()   : clean;
+      document.getElementById('result-companies').textContent = companiesMatch ? companiesMatch[1].trim() : '';
+      document.getElementById('result-role').textContent      = '🎯 ' + identifiedRole;
       document.getElementById('resume-result').classList.add('show');
 
     } catch(err) {
-      alert(`Resume analysis failed: ${err.message}`);
+      alert('Resume analysis failed: ' + err.message);
+      console.error(err);
     }
 
     document.getElementById('resume-loader').classList.remove('show');
@@ -491,8 +439,9 @@
   };
 
   // ── JOBS ──
-  window.findJobs = async function() {
+  window.findJobs = async () => {
     if (!gradioClient) return;
+
     document.getElementById('jobs-loader').classList.add('show');
     document.getElementById('jobs-btn').disabled = true;
     document.getElementById('jobs-list').innerHTML = '';
@@ -502,15 +451,100 @@
       const jobText = result.data[0] || "No results found.";
       const card = document.createElement('div');
       card.className = 'job-card';
-      card.innerHTML = `<pre>${jobText}</pre>`;
+      card.innerHTML = '<pre>' + jobText + '</pre>';
       document.getElementById('jobs-list').appendChild(card);
     } catch(err) {
-      document.getElementById('jobs-list').innerHTML = `<p style="color:var(--text-dim)">⚠️ Failed: ${err.message}</p>`;
+      document.getElementById('jobs-list').innerHTML = '<p style="color:var(--text-dim)">⚠️ Failed: ' + err.message + '</p>';
     }
 
     document.getElementById('jobs-loader').classList.remove('show');
     document.getElementById('jobs-btn').disabled = false;
   };
+
+  // ── HELPERS ──
+  function hideWelcome() {
+    const w = document.getElementById('welcome-screen');
+    if (w) w.style.display = 'none';
+  }
+
+  function getLastBotReply(history) {
+    if (!Array.isArray(history) || history.length === 0) return "Sorry, I could not get a response.";
+    // Find last assistant message
+    for (let i = history.length - 1; i >= 0; i--) {
+      const item = history[i];
+      if (item && typeof item === 'object' && item.role === 'assistant') {
+        return item.content || "";
+      }
+      if (Array.isArray(item) && item[1]) {
+        return item[1];
+      }
+    }
+    return "Sorry, I could not get a response.";
+  }
+
+  function addMessage(role, text, audioData = null) {
+    const messages = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'message-row ' + role;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar ' + role;
+    avatar.textContent = role === 'bot' ? 'AI' : '👤';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + role;
+    bubble.textContent = typeof text === 'string' ? text : JSON.stringify(text);
+
+    // Only add audio player if audioData provided (voice replies only)
+    if (role === 'bot' && audioData) {
+      let audioUrl = '';
+      try {
+        if (typeof audioData === 'string') {
+          audioUrl = audioData;
+        } else if (audioData && audioData.url) {
+          audioUrl = audioData.url;
+        } else if (audioData && audioData.path) {
+          audioUrl = 'https://slm146-pakcareer-ai-mentor.hf.space/file=' + audioData.path;
+        }
+        if (audioUrl) {
+          const audioWrap = document.createElement('div');
+          audioWrap.style.cssText = 'background:rgba(16,185,129,0.1);border-radius:8px;padding:6px 10px;margin-top:8px;';
+          const aud = document.createElement('audio');
+          aud.controls = true;
+          aud.src = audioUrl;
+          aud.style.cssText = 'width:100%;height:28px;';
+          audioWrap.innerHTML = '🔊 ';
+          audioWrap.appendChild(aud);
+          bubble.appendChild(audioWrap);
+          // Auto play
+          const autoAudio = document.getElementById('reply-audio');
+          autoAudio.src = audioUrl;
+          autoAudio.play().catch(() => {});
+        }
+      } catch(e) { console.log('Audio display error:', e); }
+    }
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  let typingCounter = 0;
+  function addTyping() {
+    const id = 'typing-' + (++typingCounter);
+    const messages = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'message-row bot';
+    row.id = id;
+    row.innerHTML = '<div class="avatar bot">AI</div><div class="bubble bot"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+    return id;
+  }
+
+  function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+  function setSendDisabled(val) { document.getElementById('send-btn').disabled = val; }
 
 </script>
 </body>

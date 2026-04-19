@@ -9,12 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#0f0f10;--surface:#1a1a1c;--surface2:#242428;
-    --border:rgba(255,255,255,0.08);--green:#10b981;
-    --green-dim:rgba(16,185,129,0.12);--green-glow:rgba(16,185,129,0.25);
-    --text:#f0f0f0;--text-dim:#8a8a9a;
-    --user-bubble:#1e3a2f;--bot-bubble:#1a1a1c;
-    --radius:18px;--font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+    --bg:#0f0f10; --surface:#1a1a1c; --surface2:#242428;
+    --border:rgba(255,255,255,0.08); --green:#10b981;
+    --green-dim:rgba(16,185,129,0.12); --green-glow:rgba(16,185,129,0.25);
+    --text:#f0f0f0; --text-dim:#8a8a9a;
+    --user-bubble:#1e3a2f; --bot-bubble:#1a1a1c;
+    --radius:18px; --font-head:'Syne',sans-serif; --font-body:'DM Sans',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font-body);height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
@@ -35,17 +35,19 @@
   .panel{display:none;height:100%;flex-direction:column;}
   .panel.active{display:flex;}
 
-  /* ── CHAT ── */
   .messages{flex:1;overflow-y:auto;padding:24px 0;scroll-behavior:smooth;}
   .messages::-webkit-scrollbar{width:4px;}
   .messages::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:2px;}
+
   .message-row{display:flex;padding:6px 24px;gap:12px;animation:fadeUp 0.3s ease;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   .message-row.user{flex-direction:row-reverse;}
+
   .avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;margin-top:2px;}
   .avatar.bot{background:var(--green);color:#000;font-family:var(--font-head);}
   .avatar.user{background:var(--surface2);color:var(--text-dim);}
-  .bubble{max-width:min(560px,78vw);padding:12px 16px;border-radius:var(--radius);font-size:14.5px;line-height:1.75;}
+
+  .bubble{max-width:min(520px,75vw);padding:12px 16px;border-radius:var(--radius);font-size:14.5px;line-height:1.7;}
   .bubble.bot{background:var(--bot-bubble);border:1px solid var(--border);border-top-left-radius:6px;color:var(--text);}
   .bubble.user{background:var(--user-bubble);border:1px solid rgba(16,185,129,0.2);border-top-right-radius:6px;color:var(--text);}
 
@@ -59,7 +61,8 @@
 
   .typing-indicator{display:flex;align-items:center;gap:5px;padding:4px 0;}
   .dot{width:7px;height:7px;background:var(--text-dim);border-radius:50%;animation:bounce 1.2s infinite;}
-  .dot:nth-child(2){animation-delay:0.2s;}.dot:nth-child(3){animation-delay:0.4s;}
+  .dot:nth-child(2){animation-delay:0.2s;}
+  .dot:nth-child(3){animation-delay:0.4s;}
   @keyframes bounce{0%,80%,100%{transform:scale(0.7);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
 
   .input-area{padding:16px 24px 20px;background:rgba(15,15,16,0.9);backdrop-filter:blur(12px);border-top:1px solid var(--border);flex-shrink:0;}
@@ -67,48 +70,85 @@
   .input-box:focus-within{border-color:rgba(16,185,129,0.4);}
   #user-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font-body);font-size:14.5px;resize:none;max-height:120px;line-height:1.5;padding:2px 0;}
   #user-input::placeholder{color:var(--text-dim);}
+
   .icon-btn{width:36px;height:36px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
   .send-btn{background:var(--green);color:#000;}
   .send-btn:hover{background:#0ea572;transform:scale(1.05);}
   .send-btn:disabled{background:var(--surface2);color:var(--text-dim);transform:none;cursor:not-allowed;}
   .mic-btn{background:var(--surface2);color:var(--text-dim);}
   .mic-btn:hover{color:var(--green);background:var(--green-dim);}
-  .mic-btn.recording{background:rgba(239,68,68,0.2);color:#ef4444;animation:pulse-red 1s infinite;}
-  @keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4);}50%{box-shadow:0 0 0 8px rgba(239,68,68,0);}}
+  .mic-btn.recording{background:rgba(239,68,68,0.15);color:#ef4444;animation:pulse-red 1s infinite;}
+  @keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.3);}50%{box-shadow:0 0 0 6px rgba(239,68,68,0);}}
+
   .input-hint{text-align:center;font-size:11px;color:var(--text-dim);margin-top:8px;opacity:0.6;}
 
-  #voice-status{display:none;align-items:center;gap:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#ef4444;}
+  #voice-status{display:none;align-items:center;gap:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:8px 14px;margin-bottom:10px;font-size:13px;color:#ef4444;}
   #voice-status.show{display:flex;}
   .rec-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;animation:pulse-red 1s infinite;flex-shrink:0;}
 
-  /* ── RESUME ── */
+  /* ── Floating stop button — appears when bot is speaking ── */
+  #stop-bar{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(16,185,129,0.12);
+    border:1px solid var(--green-glow);
+    border-radius:12px;
+    padding:8px 14px;
+    margin-bottom:10px;
+    font-size:13px;
+    color:var(--green);
+    gap:10px;
+  }
+  #stop-bar.show{display:flex;}
+  .stop-speak-btn{
+    background:rgba(239,68,68,0.15);
+    color:#ef4444;
+    border:1px solid rgba(239,68,68,0.3);
+    border-radius:8px;
+    padding:5px 12px;
+    font-size:12px;
+    font-family:var(--font-body);
+    cursor:pointer;
+    font-weight:500;
+    transition:all 0.2s;
+    white-space:nowrap;
+  }
+  .stop-speak-btn:hover{background:rgba(239,68,68,0.3);}
+
+  /* speaking animation dots */
+  .speak-dots{display:flex;align-items:center;gap:3px;}
+  .speak-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:speak-wave 1s infinite;}
+  .speak-dot:nth-child(2){animation-delay:0.15s;}
+  .speak-dot:nth-child(3){animation-delay:0.3s;}
+  .speak-dot:nth-child(4){animation-delay:0.45s;}
+  @keyframes speak-wave{0%,100%{transform:scaleY(0.5);opacity:0.4;}50%{transform:scaleY(1.5);opacity:1;}}
+
   #resume-panel,#jobs-panel{padding:32px 24px;overflow-y:auto;gap:20px;}
   .panel-title{font-family:var(--font-head);font-size:22px;font-weight:700;margin-bottom:4px;}
   .panel-sub{color:var(--text-dim);font-size:14px;margin-bottom:20px;}
-  .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);display:block;margin-bottom:16px;}
+
+  .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);display:block;}
   .upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:var(--green-dim);}
   .upload-zone input{display:none;}
   .upload-icon{font-size:36px;margin-bottom:12px;}
   .upload-zone p{color:var(--text-dim);font-size:14px;}
   .upload-zone strong{color:var(--green);}
-  .action-btn{background:var(--green);color:#000;border:none;border-radius:12px;padding:12px 28px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;width:100%;margin-bottom:16px;}
+
+  .action-btn{background:var(--green);color:#000;border:none;border-radius:12px;padding:12px 28px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;width:100%;margin-bottom:12px;}
   .action-btn:hover{background:#0ea572;}
   .action-btn:disabled{background:var(--surface2);color:var(--text-dim);cursor:not-allowed;}
+
   .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:none;}
   .result-card.show{display:block;}
-  .result-card h3{font-family:var(--font-head);font-size:15px;margin-bottom:8px;color:var(--green);}
-  .result-card p{font-size:14px;line-height:1.7;color:var(--text-dim);margin-bottom:16px;}
-  .role-badge{display:inline-block;background:var(--green-dim);border:1px solid var(--green-glow);color:var(--green);font-size:13px;padding:6px 14px;border-radius:100px;}
+  .result-card h3{font-family:var(--font-head);font-size:16px;margin-bottom:12px;color:var(--green);}
+  .result-card p{font-size:14px;line-height:1.7;color:var(--text-dim);}
+  .role-badge{display:inline-block;background:var(--green-dim);border:1px solid var(--green-glow);color:var(--green);font-size:13px;padding:6px 14px;border-radius:100px;margin-top:10px;}
 
-  /* ── JOBS ── */
-  .jobs-list{display:flex;flex-direction:column;gap:16px;}
-  .job-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color 0.2s;}
+  .jobs-list{display:flex;flex-direction:column;gap:12px;}
+  .job-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:border-color 0.2s;}
   .job-card:hover{border-color:var(--green);}
-  .job-card .job-title{font-family:var(--font-head);font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;}
-  .job-card .job-detail{font-size:13px;color:var(--text-dim);margin-bottom:4px;}
-  .job-card .job-detail span{color:var(--text);}
-  .apply-btn{display:inline-block;margin-top:12px;background:var(--green);color:#000;font-family:var(--font-body);font-size:13px;font-weight:500;padding:7px 18px;border-radius:8px;text-decoration:none;transition:background 0.2s;}
-  .apply-btn:hover{background:#0ea572;}
+  .job-card pre{font-family:var(--font-body);font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text-dim);}
 
   .loader{display:none;align-items:center;gap:10px;color:var(--text-dim);font-size:13px;padding:12px 0;}
   .loader.show{display:flex;}
@@ -123,9 +163,9 @@
     header{padding:12px 16px;}
     .logo-text{font-size:15px;}
     .tab-btn{padding:6px 8px;font-size:11px;}
-    .message-row{padding:6px 14px;}
-    .input-area{padding:12px 14px 16px;}
-    #resume-panel,#jobs-panel{padding:20px 14px;}
+    .message-row{padding:6px 16px;}
+    .input-area{padding:12px 16px 16px;}
+    #resume-panel,#jobs-panel{padding:20px 16px;}
   }
 </style>
 </head>
@@ -144,31 +184,45 @@
 </header>
 
 <main>
-
-  <!-- ── CHAT PANEL ── -->
+  <!-- CHAT -->
   <div class="panel active" id="chat-panel">
     <div class="messages" id="messages">
       <div class="welcome" id="welcome-screen">
         <div class="welcome-icon">🎓</div>
         <h2>Your Career Mentor</h2>
-        <p>Ask anything about careers in Pakistan. Type or speak — I will guide you.</p>
+        <p>Ask me anything about careers in Pakistan. Type or speak — I will guide you.</p>
         <div class="suggestions">
-          <button class="suggestion-chip" onclick="sendSuggestion(this)">I am in 12th class, what should I do?</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">I'm in 12th class, what should I do?</button>
           <button class="suggestion-chip" onclick="sendSuggestion(this)">Best careers in Pakistan 2025</button>
-          <button class="suggestion-chip" onclick="sendSuggestion(this)">How to prepare for job interviews?</button>
+          <button class="suggestion-chip" onclick="sendSuggestion(this)">How to get a job at a top company?</button>
           <button class="suggestion-chip" onclick="sendSuggestion(this)">Is software engineering a good choice?</button>
         </div>
       </div>
     </div>
     <div class="input-area">
+      <!-- Voice recording status -->
       <div id="voice-status">
         <div class="rec-dot"></div>
-        <span>Recording... click mic again to stop</span>
+        <span>🔴 Recording... click mic again to stop</span>
       </div>
+      <!-- Stop speaking bar — shows when bot is talking -->
+      <div id="stop-bar">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="speak-dots">
+            <div class="speak-dot"></div>
+            <div class="speak-dot"></div>
+            <div class="speak-dot"></div>
+            <div class="speak-dot"></div>
+          </div>
+          <span>Mentor is speaking...</span>
+        </div>
+        <button class="stop-speak-btn" onclick="stopSpeaking()">⏹ Stop</button>
+      </div>
+      <!-- Input box -->
       <div class="input-box">
         <textarea id="user-input" placeholder="Ask your career question..." rows="1"
           onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-        <button class="icon-btn mic-btn" id="mic-btn" onclick="toggleRecording()" title="Click to speak">
+        <button class="icon-btn mic-btn" id="mic-btn" title="Click to speak" onclick="toggleRecording()">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-6 9a6 6 0 0 0 12 0h2a8 8 0 0 1-7 7.93V20h3v2H8v-2h3v-3.07A8 8 0 0 1 4 10h2z"/>
           </svg>
@@ -183,432 +237,376 @@
     </div>
   </div>
 
-  <!-- ── RESUME PANEL ── -->
+  <!-- RESUME -->
   <div class="panel" id="resume-panel">
     <div class="panel-title">Resume Analysis</div>
-    <div class="panel-sub">Upload your CV to get personalized career advice for Pakistan's job market.</div>
+    <div class="panel-sub">Upload your CV and get personalized career advice for Pakistan's job market.</div>
     <label class="upload-zone" id="upload-zone" for="pdf-input"
       ondragover="event.preventDefault();this.classList.add('drag')"
       ondragleave="this.classList.remove('drag')"
       ondrop="handleDrop(event)">
       <input type="file" id="pdf-input" accept="application/pdf,.pdf" onchange="handleFile(event)">
       <div class="upload-icon">📄</div>
-      <p><strong>Click to upload</strong> or drag and drop your PDF resume</p>
-      <p style="margin-top:8px;font-size:13px;color:var(--green);" id="file-name">No file selected</p>
+      <p><strong>Click to upload</strong> or drag & drop your PDF resume</p>
+      <p style="margin-top:6px;font-size:12px;color:var(--green);" id="file-name">No file selected</p>
     </label>
     <button class="action-btn" id="analyze-btn" onclick="analyzeResume()" disabled>🔍 Analyze My Resume</button>
     <div class="loader" id="resume-loader"><div class="spinner"></div><span>Analyzing your CV for Pakistani job market...</span></div>
     <div class="result-card" id="resume-result">
-      <h3>📝 Professional Summary</h3>
+      <h3>📝 Summary</h3>
       <p id="result-summary"></p>
-      <h3>🏢 Work Experience</h3>
+      <h3 style="margin-top:16px;">🏢 Companies</h3>
       <p id="result-companies"></p>
-      <h3>🎯 Best Matching Role</h3>
-      <span class="role-badge" id="result-role"></span>
+      <h3 style="margin-top:16px;">🎯 Identified Role</h3>
+      <div><span class="role-badge" id="result-role"></span></div>
     </div>
   </div>
 
-  <!-- ── JOBS PANEL ── -->
+  <!-- JOBS -->
   <div class="panel" id="jobs-panel">
     <div class="panel-title">Job Finder</div>
-    <div class="panel-sub">Find real job opportunities in Pakistan. Analyze your resume first for best results.</div>
+    <div class="panel-sub">Find real job opportunities in Pakistan matching your profile. Analyze resume first for best results.</div>
     <button class="action-btn" id="jobs-btn" onclick="findJobs()">🔎 Find Jobs for Me</button>
     <div class="loader" id="jobs-loader"><div class="spinner"></div><span>Searching Pakistani job market...</span></div>
     <div class="jobs-list" id="jobs-list"></div>
   </div>
-
 </main>
 
+<!-- Hidden audio element for auto-play -->
 <audio id="reply-audio" style="display:none"></audio>
 
 <script type="module">
-import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+  import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-const SPACE = "SLM146/pakcareer-ai-mentor";
+  const SPACE = "SLM146/pakcareer-ai-mentor";
 
-let gradioClient = null;
-let chatHistory  = [];
-let resumeText   = "";
-let identifiedRole = "Software Engineer";
-let pdfFile = null;
-let mediaRecorder = null;
-let audioChunks   = [];
-let isRecording   = false;
+  let gradioClient = null;
+  let chatHistory  = [];
+  let resumeText   = "";
+  let identifiedRole = "";
+  let pdfFile      = null;
+  let mediaRecorder = null;
+  let audioChunks  = [];
+  let isRecording  = false;
 
-// Connect
-async function connect() {
-  try {
-    gradioClient = await Client.connect(SPACE);
-    console.log("Connected to Space");
-  } catch(e) {
-    console.error("Connection failed, retrying...", e);
-    setTimeout(connect, 4000);
-  }
-}
-connect();
-
-// ── Helpers ──────────────────────────────────────────────────
-
-// Clean raw text — remove JSON artifacts, \n literals, markdown
-function cleanText(raw) {
-  if (!raw) return "";
-  if (typeof raw !== "string") raw = JSON.stringify(raw);
-
-  // Remove JSON wrapper like [{"text":"...","type":"text"}]
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed[0] && parsed[0].text) {
-      raw = parsed.map(p => p.text || "").join("");
-    } else if (parsed && parsed.text) {
-      raw = parsed.text;
-    }
-  } catch(e) { /* not JSON, continue */ }
-
-  return raw
-    .replace(/\\n/g, "\n")          // literal \n → real newline
-    .replace(/\*\*(.*?)\*\*/g, "$1") // **bold** → plain
-    .replace(/\*(.*?)\*/g, "$1")     // *italic* → plain
-    .replace(/#{1,6}\s/g, "")        // ## heading → plain
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // [text](url) → text only
-    .trim();
-}
-
-function getLastBotReply(history) {
-  if (!Array.isArray(history) || history.length === 0) return "";
-  for (let i = history.length - 1; i >= 0; i--) {
-    const item = history[i];
-    if (!item) continue;
-    if (typeof item === "object" && !Array.isArray(item) && item.role === "assistant") {
-      return cleanText(item.content);
-    }
-    if (Array.isArray(item) && item[1]) return cleanText(item[1]);
-  }
-  return "";
-}
-
-function hideWelcome() {
-  const w = document.getElementById("welcome-screen");
-  if (w) w.style.display = "none";
-}
-
-function addMessage(role, text, audioData = null) {
-  const messages = document.getElementById("messages");
-  const row = document.createElement("div");
-  row.className = "message-row " + role;
-
-  const avatar = document.createElement("div");
-  avatar.className = "avatar " + role;
-  avatar.textContent = role === "bot" ? "AI" : "👤";
-
-  const bubble = document.createElement("div");
-  bubble.className = "bubble " + role;
-
-  // Use whitespace-aware text rendering
-  const textNode = document.createElement("div");
-  textNode.style.whiteSpace = "pre-wrap";
-  textNode.textContent = cleanText(text);
-  bubble.appendChild(textNode);
-
-  // Add audio ONLY if audioData given (voice replies only)
-  if (role === "bot" && audioData) {
-    let audioUrl = "";
-    if (typeof audioData === "string") audioUrl = audioData;
-    else if (audioData && audioData.url) audioUrl = audioData.url;
-    else if (audioData && audioData.path) audioUrl = "https://slm146-pakcareer-ai-mentor.hf.space/file=" + audioData.path;
-
-    if (audioUrl) {
-      const wrap = document.createElement("div");
-      wrap.style.cssText = "background:rgba(16,185,129,0.1);border-radius:8px;padding:8px 10px;margin-top:10px;display:flex;align-items:center;gap:8px;";
-      wrap.innerHTML = "🔊";
-      const aud = document.createElement("audio");
-      aud.controls = true;
-      aud.src = audioUrl;
-      aud.style.cssText = "flex:1;height:28px;";
-      wrap.appendChild(aud);
-      bubble.appendChild(wrap);
-      document.getElementById("reply-audio").src = audioUrl;
-      document.getElementById("reply-audio").play().catch(() => {});
+  // Connect on page load
+  async function connectClient() {
+    try {
+      gradioClient = await Client.connect(SPACE);
+      console.log("✅ Connected to Space");
+    } catch(e) {
+      console.error("Connection failed, retrying...", e);
+      setTimeout(connectClient, 3000);
     }
   }
+  connectClient();
 
-  row.appendChild(avatar);
-  row.appendChild(bubble);
-  messages.appendChild(row);
-  messages.scrollTop = messages.scrollHeight;
-}
+  // ── Global functions ──
+  window.switchTab = (tab, btn) => {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tab+'-panel').classList.add('active');
+    btn.classList.add('active');
+  };
 
-let typingCount = 0;
-function addTyping() {
-  const id = "t" + (++typingCount);
-  const messages = document.getElementById("messages");
-  const row = document.createElement("div");
-  row.className = "message-row bot"; row.id = id;
-  row.innerHTML = `<div class="avatar bot">AI</div><div class="bubble bot"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-  messages.appendChild(row);
-  messages.scrollTop = messages.scrollHeight;
-  return id;
-}
-function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
-function setSendDisabled(v) { document.getElementById("send-btn").disabled = v; }
+  window.autoResize = el => {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120)+'px';
+  };
 
-// ── Global functions ──────────────────────────────────────────
+  window.handleKey = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMessage(); }
+  };
 
-window.switchTab = (tab, btn) => {
-  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById(tab + "-panel").classList.add("active");
-  btn.classList.add("active");
-};
+  window.sendSuggestion = btn => {
+    document.getElementById('user-input').value = btn.textContent;
+    window.sendMessage();
+  };
 
-window.autoResize = el => {
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
-};
+  // ── STOP SPEAKING ──────────────────────────────────────────
+  window.stopSpeaking = () => {
+    const audio = document.getElementById('reply-audio');
+    audio.pause();
+    audio.currentTime = 0;
+    audio.src = '';
+    document.getElementById('stop-bar').classList.remove('show');
+  };
 
-window.handleKey = e => {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); window.sendMessage(); }
-};
-
-window.sendSuggestion = btn => {
-  document.getElementById("user-input").value = btn.textContent;
-  window.sendMessage();
-};
-
-// ── TEXT SEND — no audio ──────────────────────────────────────
-window.sendMessage = async () => {
-  const input = document.getElementById("user-input");
-  const text  = input.value.trim();
-  if (!text) return;
-  if (!gradioClient) { addMessage("bot", "Still connecting, please wait a moment..."); return; }
-
-  hideWelcome();
-  addMessage("user", text);
-  input.value = "";
-  input.style.height = "auto";
-
-  const tid = addTyping();
-  setSendDisabled(true);
-
-  try {
-    const result = await gradioClient.predict("/career_chat_text", [text, chatHistory, resumeText]);
-    removeTyping(tid);
-
-    const newHistory = result.data[0];
-    chatHistory = Array.isArray(newHistory) ? newHistory : [];
-
-    const reply = getLastBotReply(chatHistory);
-    addMessage("bot", reply || "Sorry, I could not get a response. Please try again.");
-
-  } catch(err) {
-    removeTyping(tid);
-    addMessage("bot", "Error: " + err.message + ". Please try again.");
-    console.error(err);
+  function showStopBar() {
+    document.getElementById('stop-bar').classList.add('show');
   }
-  setSendDisabled(false);
-};
 
-// ── VOICE ────────────────────────────────────────────────────
-window.toggleRecording = async () => {
-  if (!isRecording) await startRecording(); else stopRecording();
-};
-
-async function startRecording() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.onstop = sendVoice;
-    mediaRecorder.start();
-    isRecording = true;
-    document.getElementById("mic-btn").classList.add("recording");
-    document.getElementById("voice-status").classList.add("show");
-  } catch(e) {
-    alert("Microphone access denied. Please allow microphone in your browser.");
+  function hideStopBar() {
+    document.getElementById('stop-bar').classList.remove('show');
   }
-}
 
-function stopRecording() {
-  if (mediaRecorder && isRecording) {
-    mediaRecorder.stop();
-    mediaRecorder.stream.getTracks().forEach(t => t.stop());
-    isRecording = false;
-    document.getElementById("mic-btn").classList.remove("recording");
-    document.getElementById("voice-status").classList.remove("show");
-  }
-}
+  // ── SEND TEXT MESSAGE ──────────────────────────────────────
+  window.sendMessage = async () => {
+    const input = document.getElementById('user-input');
+    const text  = input.value.trim();
+    if (!text) return;
+    if (!gradioClient) { alert('Still connecting... please wait a moment and try again.'); return; }
 
-async function sendVoice() {
-  if (!gradioClient) { addMessage("bot", "Not connected yet. Please wait."); return; }
+    hideWelcome();
+    addMessage('user', text);
+    input.value = '';
+    input.style.height = 'auto';
 
-  // Create blob with explicit type
-  const blob = new Blob(audioChunks, { type: "audio/webm;codecs=opus" });
-  const file = new File([blob], "recording.webm", { type: "audio/webm" });
+    const typingId = addTyping();
+    setSendDisabled(true);
 
-  hideWelcome();
-  const tid = addTyping();
+    try {
+      const result = await gradioClient.predict("/career_chat_text", [
+        text, chatHistory, resumeText
+      ]);
 
-  try {
-    const result = await gradioClient.predict("/career_chat_voice", [file, chatHistory, resumeText]);
-    removeTyping(tid);
+      removeTyping(typingId);
+      const newHistory = result.data[0];
+      chatHistory = Array.isArray(newHistory) ? newHistory : [];
+      const botReply = getLastBotReply(chatHistory);
+      addMessage('bot', botReply); // text only — no audio
 
-    const newHistory  = result.data[0];
-    const audioData   = result.data[1];
-    const transcribed = cleanText(result.data[2] || "");
-
-    chatHistory = Array.isArray(newHistory) ? newHistory : [];
-
-    if (transcribed && !transcribed.startsWith("Could not")) {
-      addMessage("user", "🎙 " + transcribed);
+    } catch(err) {
+      removeTyping(typingId);
+      addMessage('bot', "⚠️ Error: " + err.message);
+      console.error(err);
     }
 
-    const reply = getLastBotReply(chatHistory);
-    if (reply) addMessage("bot", reply, audioData); // WITH audio
+    setSendDisabled(false);
+  };
 
-  } catch(err) {
-    removeTyping(tid);
-    addMessage("bot", "Voice failed: " + err.message + ". Please try typing.");
-    console.error(err);
-  }
-}
+  // ── VOICE RECORDING ────────────────────────────────────────
+  window.toggleRecording = async () => {
+    if (!isRecording) { await startRecording(); } else { stopRecording(); }
+  };
 
-// ── RESUME ───────────────────────────────────────────────────
-window.handleFile = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-    alert("Please upload a PDF file only.");
-    e.target.value = "";
-    return;
-  }
-  pdfFile = file;
-  document.getElementById("file-name").textContent = "✅ " + file.name;
-  document.getElementById("analyze-btn").disabled = false;
-  document.getElementById("upload-zone").style.borderColor = "var(--green)";
-};
-
-window.handleDrop = e => {
-  e.preventDefault();
-  document.getElementById("upload-zone").classList.remove("drag");
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-    alert("Please upload a PDF file only.");
-    return;
-  }
-  pdfFile = file;
-  document.getElementById("file-name").textContent = "✅ " + file.name;
-  document.getElementById("analyze-btn").disabled = false;
-};
-
-window.analyzeResume = async () => {
-  if (!pdfFile || !gradioClient) return;
-
-  document.getElementById("resume-loader").classList.add("show");
-  document.getElementById("analyze-btn").disabled = true;
-  document.getElementById("resume-result").classList.remove("show");
-
-  try {
-    // Send as proper File object
-    const pdfFileObj = new File([pdfFile], pdfFile.name, { type: "application/pdf" });
-    const result = await gradioClient.predict("/process_resume", [pdfFileObj]);
-
-    const summary  = cleanText(result.data[0]) || "N/A";
-    identifiedRole = cleanText(result.data[1]) || "Software Engineer";
-    resumeText     = result.data[2] || "";
-
-    document.getElementById("result-summary").textContent   = summary;
-    document.getElementById("result-companies").textContent = "Based on your CV experience";
-    document.getElementById("result-role").textContent      = "🎯 " + identifiedRole;
-    document.getElementById("resume-result").classList.add("show");
-
-  } catch(err) {
-    alert("Resume analysis failed: " + err.message);
-    console.error(err);
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = sendVoiceMessage;
+      mediaRecorder.start();
+      isRecording = true;
+      document.getElementById('mic-btn').classList.add('recording');
+      document.getElementById('voice-status').classList.add('show');
+    } catch(err) {
+      alert('Microphone access denied. Please allow microphone in your browser settings.');
+    }
   }
 
-  document.getElementById("resume-loader").classList.remove("show");
-  document.getElementById("analyze-btn").disabled = false;
-};
+  function stopRecording() {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(t => t.stop());
+      isRecording = false;
+      document.getElementById('mic-btn').classList.remove('recording');
+      document.getElementById('voice-status').classList.remove('show');
+    }
+  }
 
-// ── JOBS — with clickable links ───────────────────────────────
-window.findJobs = async () => {
-  if (!gradioClient) return;
+  // ── SEND VOICE MESSAGE — returns text + audio ──────────────
+  async function sendVoiceMessage() {
+    if (!gradioClient) { addMessage('bot', '⚠️ Not connected yet. Please wait.'); return; }
 
-  document.getElementById("jobs-loader").classList.add("show");
-  document.getElementById("jobs-btn").disabled = true;
-  document.getElementById("jobs-list").innerHTML = "";
+    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+    const typingId = addTyping();
+    hideWelcome();
 
-  try {
-    const result  = await gradioClient.predict("/find_jobs", [identifiedRole]);
-    const rawText = result.data[0] || "";
-    const jobsDiv = document.getElementById("jobs-list");
+    try {
+      const result = await gradioClient.predict("/career_chat_voice", [
+        blob, chatHistory, resumeText
+      ]);
 
-    // Parse the structured job format
-    const jobs = parseJobs(rawText);
+      removeTyping(typingId);
 
-    if (jobs.length === 0) {
-      // Fallback: show plain text
-      const card = document.createElement("div");
-      card.className = "job-card";
-      const pre = document.createElement("div");
-      pre.style.cssText = "font-size:14px;line-height:1.8;color:var(--text-dim);white-space:pre-wrap;";
-      pre.textContent = cleanText(rawText);
-      card.appendChild(pre);
-      jobsDiv.appendChild(card);
+      const newHistory  = result.data[0];
+      const audioData   = result.data[1];
+      const transcribed = result.data[2] || "";
+
+      chatHistory = Array.isArray(newHistory) ? newHistory : [];
+
+      if (transcribed && !transcribed.startsWith('⚠️')) {
+        addMessage('user', '🎙️ ' + transcribed);
+      }
+
+      const botReply = getLastBotReply(chatHistory);
+      if (botReply) addMessage('bot', botReply, audioData); // with audio
+
+    } catch(err) {
+      removeTyping(typingId);
+      addMessage('bot', '⚠️ Voice failed: ' + err.message);
+      console.error(err);
+    }
+  }
+
+  // ── RESUME ─────────────────────────────────────────────────
+  window.handleFile = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // ── FIX: accept by extension too, not just MIME type ──
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      alert('Please upload a PDF file only.');
+      e.target.value = '';
+      return;
+    }
+
+    pdfFile = file;
+    document.getElementById('file-name').textContent = '✅ ' + file.name;
+    document.getElementById('analyze-btn').disabled = false;
+    document.getElementById('upload-zone').style.borderColor = 'var(--green)';
+  };
+
+  window.handleDrop = e => {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    const isPdf = file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'));
+    if (isPdf) {
+      pdfFile = file;
+      document.getElementById('file-name').textContent = '✅ ' + file.name;
+      document.getElementById('analyze-btn').disabled = false;
     } else {
-      jobs.forEach(job => {
-        const card = document.createElement("div");
-        card.className = "job-card";
-        card.innerHTML = `
-          <div class="job-title">${job.title}</div>
-          <div class="job-detail">🏢 Company: <span>${job.company}</span></div>
-          <div class="job-detail">📍 Location: <span>${job.location}</span></div>
-          ${job.url ? `<a class="apply-btn" href="${job.url}" target="_blank" rel="noopener">Apply Now →</a>` : ""}
-        `;
-        jobsDiv.appendChild(card);
-      });
+      alert('Please upload a PDF file only.');
+    }
+  };
+
+  window.analyzeResume = async () => {
+    if (!pdfFile || !gradioClient) return;
+
+    document.getElementById('resume-loader').classList.add('show');
+    document.getElementById('analyze-btn').disabled = true;
+    document.getElementById('resume-result').classList.remove('show');
+
+    try {
+      // Create a proper File object with correct MIME type
+      const properFile = new File([pdfFile], pdfFile.name, { type: 'application/pdf' });
+      const result = await gradioClient.predict("/process_resume", [ properFile ]);
+
+      const raw      = result.data[0] || "";
+      identifiedRole = result.data[1] || "N/A";
+      resumeText     = result.data[2] || "";
+
+      const clean = raw.replace(/[#*]/g, '').trim();
+      const summaryMatch   = clean.match(/Summary\s*([\s\S]*?)(?:Companies|Role:|$)/i);
+      const companiesMatch = clean.match(/Companies\s*([\s\S]*?)(?:Role:|$)/i);
+
+      document.getElementById('result-summary').textContent   = summaryMatch   ? summaryMatch[1].trim()   : clean;
+      document.getElementById('result-companies').textContent = companiesMatch ? companiesMatch[1].trim() : '';
+      document.getElementById('result-role').textContent      = '🎯 ' + identifiedRole;
+      document.getElementById('resume-result').classList.add('show');
+
+    } catch(err) {
+      alert('Resume analysis failed: ' + err.message);
+      console.error(err);
     }
 
-  } catch(err) {
-    document.getElementById("jobs-list").innerHTML = `<p style="color:var(--text-dim);padding:12px;">Failed: ${err.message}</p>`;
-    console.error(err);
+    document.getElementById('resume-loader').classList.remove('show');
+    document.getElementById('analyze-btn').disabled = false;
+  };
+
+  // ── JOBS ───────────────────────────────────────────────────
+  window.findJobs = async () => {
+    if (!gradioClient) return;
+
+    document.getElementById('jobs-loader').classList.add('show');
+    document.getElementById('jobs-btn').disabled = true;
+    document.getElementById('jobs-list').innerHTML = '';
+
+    try {
+      const result = await gradioClient.predict("/find_jobs", [ identifiedRole || "Software Engineer" ]);
+      const jobText = result.data[0] || "No results found.";
+      const card = document.createElement('div');
+      card.className = 'job-card';
+      card.innerHTML = '<pre>' + jobText + '</pre>';
+      document.getElementById('jobs-list').appendChild(card);
+    } catch(err) {
+      document.getElementById('jobs-list').innerHTML = '<p style="color:var(--text-dim)">⚠️ ' + err.message + '</p>';
+    }
+
+    document.getElementById('jobs-loader').classList.remove('show');
+    document.getElementById('jobs-btn').disabled = false;
+  };
+
+  // ── HELPERS ────────────────────────────────────────────────
+  function hideWelcome() {
+    const w = document.getElementById('welcome-screen');
+    if (w) w.style.display = 'none';
   }
 
-  document.getElementById("jobs-loader").classList.remove("show");
-  document.getElementById("jobs-btn").disabled = false;
-};
-
-// Parse job text into structured objects
-function parseJobs(text) {
-  const jobs = [];
-  // Split by JOB 1, JOB 2 etc.
-  const blocks = text.split(/JOB\s*\d+/i).filter(b => b.trim());
-
-  blocks.forEach(block => {
-    const titleMatch    = block.match(/Title:\s*(.+)/i);
-    const companyMatch  = block.match(/Company:\s*(.+)/i);
-    const locationMatch = block.match(/Location:\s*(.+)/i);
-    const applyMatch    = block.match(/Apply:\s*(https?:\/\/\S+)/i);
-
-    if (titleMatch || companyMatch) {
-      jobs.push({
-        title:    titleMatch    ? titleMatch[1].trim()    : "Position Available",
-        company:  companyMatch  ? companyMatch[1].trim()  : "Company",
-        location: locationMatch ? locationMatch[1].trim() : "Pakistan",
-        url:      applyMatch    ? applyMatch[1].trim()    : extractUrl(block)
-      });
+  function getLastBotReply(history) {
+    if (!Array.isArray(history) || history.length === 0) return "Sorry, I could not get a response.";
+    for (let i = history.length - 1; i >= 0; i--) {
+      const item = history[i];
+      if (item && typeof item === 'object' && item.role === 'assistant' && item.content) return item.content;
+      if (Array.isArray(item) && item[1]) return item[1];
     }
-  });
+    return "Sorry, I could not get a response.";
+  }
 
-  return jobs;
-}
+  function addMessage(role, text, audioData = null) {
+    const messages = document.getElementById('messages');
+    const row      = document.createElement('div');
+    row.className  = 'message-row ' + role;
 
-// Extract any URL from text as fallback
-function extractUrl(text) {
-  const match = text.match(/https?:\/\/[^\s)]+/);
-  return match ? match[0] : "";
-}
+    const avatar   = document.createElement('div');
+    avatar.className = 'avatar ' + role;
+    avatar.textContent = role === 'bot' ? 'AI' : '👤';
+
+    const bubble   = document.createElement('div');
+    bubble.className = 'bubble ' + role;
+    bubble.textContent = typeof text === 'string' ? text : JSON.stringify(text);
+
+    // Audio player — only for voice replies
+    if (role === 'bot' && audioData) {
+      let audioUrl = '';
+      try {
+        if (typeof audioData === 'string') {
+          audioUrl = audioData;
+        } else if (audioData && audioData.url) {
+          audioUrl = audioData.url;
+        } else if (audioData && audioData.path) {
+          audioUrl = 'https://slm146-pakcareer-ai-mentor.hf.space/file=' + audioData.path;
+        }
+
+        if (audioUrl) {
+          // Auto play and show stop bar
+          const audio = document.getElementById('reply-audio');
+          audio.src   = audioUrl;
+          audio.play().then(() => {
+            showStopBar();
+          }).catch(() => {});
+
+          // Hide stop bar when audio finishes naturally
+          audio.onended = () => hideStopBar();
+        }
+      } catch(e) { console.log('Audio error:', e); }
+    }
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  let typingCounter = 0;
+  function addTyping() {
+    const id  = 'typing-' + (++typingCounter);
+    const messages = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'message-row bot';
+    row.id = id;
+    row.innerHTML = '<div class="avatar bot">AI</div><div class="bubble bot"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+    return id;
+  }
+
+  function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+  function setSendDisabled(val) { document.getElementById('send-btn').disabled = val; }
 
 </script>
 </body>

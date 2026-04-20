@@ -220,7 +220,8 @@
 <script type="module">
   import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-  const SPACE = "SLM146/pakcareer-ai-mentor";
+  const SPACE    = "SLM146/pakcareer-ai-mentor";
+  const HF_BASE  = "https://slm146-pakcareer-ai-mentor.hf.space";
 
   let gradioClient   = null;
   let chatHistory    = [];
@@ -234,9 +235,9 @@
   async function connectClient() {
     try {
       gradioClient = await Client.connect(SPACE);
-      console.log("✅ Connected to Space");
+      console.log("✅ Connected");
     } catch(e) {
-      console.error("Retrying connection...", e);
+      console.error("Retrying...", e);
       setTimeout(connectClient, 3000);
     }
   }
@@ -253,13 +254,10 @@
         return '';
       }).join('');
     }
-    if (typeof value === 'object') {
-      return value.text || value.content || value.value || '';
-    }
+    if (typeof value === 'object') return value.text || value.content || value.value || '';
     return String(value);
   }
 
-  // ── Get last bot reply from history ──
   function getLastBotReply(history) {
     if (!Array.isArray(history) || history.length === 0) return "Sorry, no response received.";
     for (let i = history.length - 1; i >= 0; i--) {
@@ -267,11 +265,26 @@
       if (item && typeof item === 'object' && !Array.isArray(item) && item.role === 'assistant') {
         return extractText(item.content);
       }
-      if (Array.isArray(item) && item.length >= 2 && item[1]) {
-        return extractText(item[1]);
-      }
+      if (Array.isArray(item) && item.length >= 2 && item[1]) return extractText(item[1]);
     }
     return "Sorry, no response received.";
+  }
+
+  // ── Upload file using plain fetch (most reliable method) ──
+  async function uploadFileToCors(file) {
+    // Try fetch upload with no-cors workaround using FormData
+    const formData = new FormData();
+    formData.append('files', file, file.name);
+
+    const res = await fetch(HF_BASE + '/upload', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error('Upload failed: ' + res.status);
+    const json = await res.json();
+    return json[0]; // returns server file path like "/tmp/gradio/xxx/file.pdf"
   }
 
   // ── Global helpers ──
@@ -292,12 +305,9 @@
     document.getElementById('user-input').value = btn.textContent;
     window.sendMessage();
   };
-
   window.stopSpeaking = () => {
     const audio = document.getElementById('reply-audio');
-    audio.pause();
-    audio.currentTime = 0;
-    audio.src = '';
+    audio.pause(); audio.currentTime = 0; audio.src = '';
     document.getElementById('stop-bar').classList.remove('show');
   };
 
@@ -307,14 +317,11 @@
     const text  = input.value.trim();
     if (!text) return;
     if (!gradioClient) { alert('Still connecting... please wait.'); return; }
-
     hideWelcome();
     addMessage('user', text);
-    input.value = '';
-    input.style.height = 'auto';
+    input.value = ''; input.style.height = 'auto';
     const typingId = addTyping();
     setSendDisabled(true);
-
     try {
       const result = await gradioClient.predict("/career_chat_text", [text, chatHistory, resumeText]);
       removeTyping(typingId);
@@ -332,7 +339,6 @@
   window.toggleRecording = async () => {
     if (!isRecording) { await startRecording(); } else { stopRecording(); }
   };
-
   async function startRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -348,7 +354,6 @@
       alert('Microphone access denied. Please allow microphone in browser settings.');
     }
   }
-
   function stopRecording() {
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
@@ -358,7 +363,6 @@
       document.getElementById('voice-status').classList.remove('show');
     }
   }
-
   async function sendVoiceMessage() {
     if (!gradioClient) { addMessage('bot','⚠️ Not connected yet.'); return; }
     const blob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -380,7 +384,7 @@
     }
   }
 
-  // ── RESUME — use gradioClient.upload() ──
+  // ── RESUME ──
   window.handleFile = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -391,7 +395,6 @@
     document.getElementById('analyze-btn').disabled = false;
     document.getElementById('upload-zone').style.borderColor = 'var(--green)';
   };
-
   window.handleDrop = e => {
     e.preventDefault();
     document.getElementById('upload-zone').classList.remove('drag');
@@ -413,14 +416,19 @@
     document.getElementById('resume-result').classList.remove('show');
 
     try {
-      // ── Use gradioClient.upload() — avoids CORS issues ──
-      const uploadedFiles = await gradioClient.upload([pdfFile]);
-      console.log("Upload result:", uploadedFiles);
+      // Step 1: upload file via fetch to HF Space /upload endpoint
+      const filePath = await uploadFileToCors(pdfFile);
+      console.log("Uploaded file path:", filePath);
 
-      // Get the file reference from upload result
-      const fileRef = uploadedFiles[0];
+      // Step 2: predict using the uploaded file path
+      const result = await gradioClient.predict("/process_resume", [{
+        path: filePath,
+        orig_name: pdfFile.name,
+        size: pdfFile.size,
+        mime_type: "application/pdf",
+        meta: { _type: "gradio.FileData" }
+      }]);
 
-      const result = await gradioClient.predict("/process_resume", [ fileRef ]);
       console.log("Resume result:", result);
 
       const raw      = extractText(result.data[0]) || "";
@@ -470,7 +478,6 @@
     const w = document.getElementById('welcome-screen');
     if (w) w.style.display = 'none';
   }
-
   function addMessage(role, text, audioData = null) {
     const messages = document.getElementById('messages');
     const row      = document.createElement('div');
@@ -481,13 +488,12 @@
     const bubble   = document.createElement('div');
     bubble.className = 'bubble ' + role;
     bubble.textContent = extractText(text);
-
     if (role === 'bot' && audioData) {
       try {
         let audioUrl = '';
         if (typeof audioData === 'string') audioUrl = audioData;
         else if (audioData && audioData.url)  audioUrl = audioData.url;
-        else if (audioData && audioData.path) audioUrl = 'https://slm146-pakcareer-ai-mentor.hf.space/file=' + audioData.path;
+        else if (audioData && audioData.path) audioUrl = HF_BASE + '/file=' + audioData.path;
         if (audioUrl) {
           const audio = document.getElementById('reply-audio');
           audio.src   = audioUrl;
@@ -498,13 +504,11 @@
         }
       } catch(e) { console.log('Audio error:', e); }
     }
-
     row.appendChild(avatar);
     row.appendChild(bubble);
     messages.appendChild(row);
     messages.scrollTop = messages.scrollHeight;
   }
-
   let typingCounter = 0;
   function addTyping() {
     const id = 'typing-' + (++typingCounter);

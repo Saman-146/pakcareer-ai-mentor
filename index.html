@@ -195,7 +195,7 @@
       <p style="margin-top:6px;font-size:12px;color:var(--green);" id="file-name">No file selected</p>
     </label>
     <button class="action-btn" id="analyze-btn" onclick="analyzeResume()" disabled>🔍 Analyze My Resume</button>
-    <div class="loader" id="resume-loader"><div class="spinner"></div><span>Analyzing your CV...</span></div>
+    <div class="loader" id="resume-loader"><div class="spinner"></div><span>Uploading and analyzing your CV...</span></div>
     <div class="result-card" id="resume-result">
       <h3>📝 Summary</h3>
       <p id="result-summary"></p>
@@ -234,57 +234,39 @@
   async function connectClient() {
     try {
       gradioClient = await Client.connect(SPACE);
-      console.log("✅ Connected");
+      console.log("✅ Connected to Space");
     } catch(e) {
-      console.error("Connection failed, retrying...", e);
+      console.error("Retrying connection...", e);
       setTimeout(connectClient, 3000);
     }
   }
   connectClient();
 
-  // ── KEY FIX: Extract plain text from ANY Gradio response format ──
+  // ── Extract plain text from ANY Gradio response format ──
   function extractText(value) {
-    if (!value) return "";
-
-    // Plain string — just return it
+    if (!value && value !== 0) return "";
     if (typeof value === 'string') return value;
-
-    // Gradio 5 format: [{"text":"...","type":"text"}]
     if (Array.isArray(value)) {
-      return value
-        .map(item => {
-          if (typeof item === 'string') return item;
-          if (item && typeof item === 'object') {
-            return item.text || item.content || item.value || JSON.stringify(item);
-          }
-          return '';
-        })
-        .join('');
+      return value.map(item => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') return item.text || item.content || item.value || '';
+        return '';
+      }).join('');
     }
-
-    // Object format: {text: "..."} or {content: "..."}
     if (typeof value === 'object') {
-      return value.text || value.content || value.value || JSON.stringify(value);
+      return value.text || value.content || value.value || '';
     }
-
     return String(value);
   }
 
-  // ── Extract last bot reply from history (handles ALL formats) ──
+  // ── Get last bot reply from history ──
   function getLastBotReply(history) {
     if (!Array.isArray(history) || history.length === 0) return "Sorry, no response received.";
-
     for (let i = history.length - 1; i >= 0; i--) {
       const item = history[i];
-
-      // Format: {role: "assistant", content: "..." or [...]}
-      if (item && typeof item === 'object' && !Array.isArray(item)) {
-        if (item.role === 'assistant') {
-          return extractText(item.content);
-        }
+      if (item && typeof item === 'object' && !Array.isArray(item) && item.role === 'assistant') {
+        return extractText(item.content);
       }
-
-      // Format: [userMsg, botMsg]
       if (Array.isArray(item) && item.length >= 2 && item[1]) {
         return extractText(item[1]);
       }
@@ -311,7 +293,6 @@
     window.sendMessage();
   };
 
-  // ── Stop speaking ──
   window.stopSpeaking = () => {
     const audio = document.getElementById('reply-audio');
     audio.pause();
@@ -320,7 +301,7 @@
     document.getElementById('stop-bar').classList.remove('show');
   };
 
-  // ── SEND TEXT — no audio ──
+  // ── SEND TEXT ──
   window.sendMessage = async () => {
     const input = document.getElementById('user-input');
     const text  = input.value.trim();
@@ -331,19 +312,14 @@
     addMessage('user', text);
     input.value = '';
     input.style.height = 'auto';
-
     const typingId = addTyping();
     setSendDisabled(true);
 
     try {
-      const result = await gradioClient.predict("/career_chat_text", [
-        text, chatHistory, resumeText
-      ]);
-
+      const result = await gradioClient.predict("/career_chat_text", [text, chatHistory, resumeText]);
       removeTyping(typingId);
       chatHistory = Array.isArray(result.data[0]) ? result.data[0] : [];
       addMessage('bot', getLastBotReply(chatHistory));
-
     } catch(err) {
       removeTyping(typingId);
       addMessage('bot', "⚠️ Error: " + err.message);
@@ -352,7 +328,7 @@
     setSendDisabled(false);
   };
 
-  // ── VOICE recording ──
+  // ── VOICE ──
   window.toggleRecording = async () => {
     if (!isRecording) { await startRecording(); } else { stopRecording(); }
   };
@@ -383,33 +359,20 @@
     }
   }
 
-  // ── SEND VOICE — with audio ──
   async function sendVoiceMessage() {
     if (!gradioClient) { addMessage('bot','⚠️ Not connected yet.'); return; }
     const blob = new Blob(audioChunks, { type: 'audio/webm' });
     const typingId = addTyping();
     hideWelcome();
-
     try {
-      const result = await gradioClient.predict("/career_chat_voice", [
-        blob, chatHistory, resumeText
-      ]);
-
+      const result = await gradioClient.predict("/career_chat_voice", [blob, chatHistory, resumeText]);
       removeTyping(typingId);
-
       const newHistory  = result.data[0];
       const audioData   = result.data[1];
       const transcribed = extractText(result.data[2]) || "";
-
       chatHistory = Array.isArray(newHistory) ? newHistory : [];
-
-      if (transcribed && !transcribed.startsWith('⚠️')) {
-        addMessage('user', '🎙️ ' + transcribed);
-      }
-
-      const botReply = getLastBotReply(chatHistory);
-      addMessage('bot', botReply, audioData);
-
+      if (transcribed && !transcribed.startsWith('⚠️')) addMessage('user', '🎙️ ' + transcribed);
+      addMessage('bot', getLastBotReply(chatHistory), audioData);
     } catch(err) {
       removeTyping(typingId);
       addMessage('bot', '⚠️ Voice failed: ' + err.message);
@@ -417,16 +380,12 @@
     }
   }
 
-  // ── RESUME — KEY FIX: upload file first then predict ──
+  // ── RESUME — use gradioClient.upload() ──
   window.handleFile = e => {
     const file = e.target.files[0];
     if (!file) return;
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    if (!isPdf) {
-      alert('Please upload a PDF file only.');
-      e.target.value = '';
-      return;
-    }
+    if (!isPdf) { alert('Please upload a PDF file only.'); e.target.value = ''; return; }
     pdfFile = file;
     document.getElementById('file-name').textContent = '✅ ' + file.name;
     document.getElementById('analyze-btn').disabled = false;
@@ -454,27 +413,21 @@
     document.getElementById('resume-result').classList.remove('show');
 
     try {
-      // ── KEY FIX: upload the file first using fetch, then pass path to predict ──
-      const formData = new FormData();
-      formData.append('files', pdfFile, pdfFile.name);
+      // ── Use gradioClient.upload() — avoids CORS issues ──
+      const uploadedFiles = await gradioClient.upload([pdfFile]);
+      console.log("Upload result:", uploadedFiles);
 
-      const uploadRes  = await fetch(`https://slm146-pakcareer-ai-mentor.hf.space/upload`, {
-        method: 'POST',
-        body: formData
-      });
-      const uploadJson = await uploadRes.json();
-      const filePath   = uploadJson[0]; // e.g. "/tmp/gradio/abc123/resume.pdf"
+      // Get the file reference from upload result
+      const fileRef = uploadedFiles[0];
 
-      // Now call predict with the uploaded file path
-      const result = await gradioClient.predict("/process_resume", [
-        { path: filePath, orig_name: pdfFile.name, meta: { _type: "gradio.FileData" } }
-      ]);
+      const result = await gradioClient.predict("/process_resume", [ fileRef ]);
+      console.log("Resume result:", result);
 
       const raw      = extractText(result.data[0]) || "";
       identifiedRole = extractText(result.data[1]) || "N/A";
       resumeText     = extractText(result.data[2]) || "";
 
-      const clean          = raw.replace(/[#*✅📝🏢🎯]/g, '').trim();
+      const clean          = raw.replace(/[#*✅📝🏢🎯]/g,'').trim();
       const summaryMatch   = clean.match(/Summary\s*([\s\S]*?)(?:Companies|Role:|$)/i);
       const companiesMatch = clean.match(/Companies\s*([\s\S]*?)(?:Role:|$)/i);
 
@@ -484,8 +437,8 @@
       document.getElementById('resume-result').classList.add('show');
 
     } catch(err) {
+      console.error("Resume error:", err);
       alert('Resume analysis failed: ' + err.message);
-      console.error(err);
     }
 
     document.getElementById('resume-loader').classList.remove('show');
@@ -498,9 +451,8 @@
     document.getElementById('jobs-loader').classList.add('show');
     document.getElementById('jobs-btn').disabled = true;
     document.getElementById('jobs-list').innerHTML = '';
-
     try {
-      const result  = await gradioClient.predict("/find_jobs", [ identifiedRole || "Software Engineer" ]);
+      const result  = await gradioClient.predict("/find_jobs", [identifiedRole || "Software Engineer"]);
       const jobText = extractText(result.data[0]) || "No results found.";
       const card    = document.createElement('div');
       card.className = 'job-card';
@@ -509,7 +461,6 @@
     } catch(err) {
       document.getElementById('jobs-list').innerHTML = '<p style="color:var(--text-dim)">⚠️ ' + err.message + '</p>';
     }
-
     document.getElementById('jobs-loader').classList.remove('show');
     document.getElementById('jobs-btn').disabled = false;
   };
@@ -524,14 +475,12 @@
     const messages = document.getElementById('messages');
     const row      = document.createElement('div');
     row.className  = 'message-row ' + role;
-
     const avatar   = document.createElement('div');
     avatar.className = 'avatar ' + role;
     avatar.textContent = role === 'bot' ? 'AI' : '👤';
-
     const bubble   = document.createElement('div');
     bubble.className = 'bubble ' + role;
-    bubble.textContent = extractText(text); // always safe extract
+    bubble.textContent = extractText(text);
 
     if (role === 'bot' && audioData) {
       try {
@@ -539,7 +488,6 @@
         if (typeof audioData === 'string') audioUrl = audioData;
         else if (audioData && audioData.url)  audioUrl = audioData.url;
         else if (audioData && audioData.path) audioUrl = 'https://slm146-pakcareer-ai-mentor.hf.space/file=' + audioData.path;
-
         if (audioUrl) {
           const audio = document.getElementById('reply-audio');
           audio.src   = audioUrl;
@@ -568,7 +516,6 @@
     messages.scrollTop = messages.scrollHeight;
     return id;
   }
-
   function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
   function setSendDisabled(v) { document.getElementById('send-btn').disabled = v; }
 </script>

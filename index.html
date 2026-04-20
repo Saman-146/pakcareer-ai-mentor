@@ -122,6 +122,7 @@
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo">
     <div class="logo-icon">🇵🇰</div>
@@ -195,7 +196,7 @@
       <p style="margin-top:6px;font-size:12px;color:var(--green);" id="file-name">No file selected</p>
     </label>
     <button class="action-btn" id="analyze-btn" onclick="analyzeResume()" disabled>🔍 Analyze My Resume</button>
-    <div class="loader" id="resume-loader"><div class="spinner"></div><span>Uploading and analyzing your CV...</span></div>
+    <div class="loader" id="resume-loader"><div class="spinner"></div><span id="resume-loader-text">Reading your CV...</span></div>
     <div class="result-card" id="resume-result">
       <h3>📝 Summary</h3>
       <p id="result-summary"></p>
@@ -217,11 +218,18 @@
 
 <audio id="reply-audio" style="display:none"></audio>
 
+<!-- PDF.js — reads PDF in browser, no upload needed -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script type="module">
   import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-  const SPACE    = "SLM146/pakcareer-ai-mentor";
-  const HF_BASE  = "https://slm146-pakcareer-ai-mentor.hf.space";
+  const SPACE   = "SLM146/pakcareer-ai-mentor";
+  const HF_BASE = "https://slm146-pakcareer-ai-mentor.hf.space";
+
+  // Set PDF.js worker
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
   let gradioClient   = null;
   let chatHistory    = [];
@@ -242,6 +250,42 @@
     }
   }
   connectClient();
+
+  // ── Extract PDF text in the browser using PDF.js ──
+  async function extractPdfText(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page    = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+    return fullText.trim();
+  }
+
+  // ── Analyze resume text using Groq via career_chat_text ──
+  // Instead of uploading PDF, we send the extracted text directly as a chat message
+  async function analyzeResumeText(pdfText) {
+    const prompt = `Please analyze this CV/Resume for the Pakistani job market and provide:
+1. A 2-3 sentence professional summary
+2. List of companies the person worked at
+3. The most suitable job role for this person
+
+CV Content:
+${pdfText.substring(0, 4000)}
+
+Please structure your response clearly with these three sections.`;
+
+    const result = await gradioClient.predict("/career_chat_text", [
+      prompt,
+      [],
+      pdfText  // pass as resume context too
+    ]);
+
+    return result;
+  }
 
   // ── Extract plain text from ANY Gradio response format ──
   function extractText(value) {
@@ -268,23 +312,6 @@
       if (Array.isArray(item) && item.length >= 2 && item[1]) return extractText(item[1]);
     }
     return "Sorry, no response received.";
-  }
-
-  // ── Upload file using plain fetch (most reliable method) ──
-  async function uploadFileToCors(file) {
-    // Try fetch upload with no-cors workaround using FormData
-    const formData = new FormData();
-    formData.append('files', file, file.name);
-
-    const res = await fetch(HF_BASE + '/upload', {
-      method: 'POST',
-      body: formData,
-      headers: { 'Accept': 'application/json' }
-    });
-
-    if (!res.ok) throw new Error('Upload failed: ' + res.status);
-    const json = await res.json();
-    return json[0]; // returns server file path like "/tmp/gradio/xxx/file.pdf"
   }
 
   // ── Global helpers ──
@@ -384,7 +411,7 @@
     }
   }
 
-  // ── RESUME ──
+  // ── RESUME — read PDF in browser, send text to API ──
   window.handleFile = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -395,6 +422,7 @@
     document.getElementById('analyze-btn').disabled = false;
     document.getElementById('upload-zone').style.borderColor = 'var(--green)';
   };
+
   window.handleDrop = e => {
     e.preventDefault();
     document.getElementById('upload-zone').classList.remove('drag');
@@ -412,35 +440,36 @@
   window.analyzeResume = async () => {
     if (!pdfFile || !gradioClient) return;
     document.getElementById('resume-loader').classList.add('show');
+    document.getElementById('resume-loader-text').textContent = 'Reading your PDF...';
     document.getElementById('analyze-btn').disabled = true;
     document.getElementById('resume-result').classList.remove('show');
 
     try {
-      // Step 1: upload file via fetch to HF Space /upload endpoint
-      const filePath = await uploadFileToCors(pdfFile);
-      console.log("Uploaded file path:", filePath);
+      // Step 1: Extract text from PDF in browser — no upload needed!
+      const pdfText = await extractPdfText(pdfFile);
+      console.log("PDF text extracted, length:", pdfText.length);
 
-      // Step 2: predict using the uploaded file path
-      const result = await gradioClient.predict("/process_resume", [{
-        path: filePath,
-        orig_name: pdfFile.name,
-        size: pdfFile.size,
-        mime_type: "application/pdf",
-        meta: { _type: "gradio.FileData" }
-      }]);
+      if (!pdfText || pdfText.length < 50) {
+        throw new Error('Could not read text from PDF. It may be a scanned image. Please use a text-based PDF.');
+      }
 
-      console.log("Resume result:", result);
+      // Save resume context for chat
+      resumeText = pdfText;
 
-      const raw      = extractText(result.data[0]) || "";
-      identifiedRole = extractText(result.data[1]) || "N/A";
-      resumeText     = extractText(result.data[2]) || "";
+      // Step 2: Send text to AI for analysis
+      document.getElementById('resume-loader-text').textContent = 'Analyzing your CV...';
 
-      const clean          = raw.replace(/[#*✅📝🏢🎯]/g,'').trim();
-      const summaryMatch   = clean.match(/Summary\s*([\s\S]*?)(?:Companies|Role:|$)/i);
-      const companiesMatch = clean.match(/Companies\s*([\s\S]*?)(?:Role:|$)/i);
+      const result = await analyzeResumeText(pdfText);
+      const newHistory = Array.isArray(result.data[0]) ? result.data[0] : [];
+      const aiResponse = getLastBotReply(newHistory);
 
-      document.getElementById('result-summary').textContent   = summaryMatch   ? summaryMatch[1].trim() : clean;
-      document.getElementById('result-companies').textContent = companiesMatch ? companiesMatch[1].trim() : '';
+      // Try to extract role from response
+      const roleMatch = aiResponse.match(/(?:role|position|title)[:\s]+([^\n.]+)/i);
+      identifiedRole  = roleMatch ? roleMatch[1].trim() : "Professional";
+
+      // Display results
+      document.getElementById('result-summary').textContent   = aiResponse;
+      document.getElementById('result-companies').textContent = 'Based on your uploaded CV';
       document.getElementById('result-role').textContent      = '🎯 ' + identifiedRole;
       document.getElementById('resume-result').classList.add('show');
 

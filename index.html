@@ -483,6 +483,17 @@ Please structure your response clearly with these three sections.`;
   };
 
   // ── JOBS ──
+  // Convert plain text URLs into clickable links
+  function linkify(text) {
+    // Match http/https URLs and www. links
+    const urlRegex = /(https?:\/\/[^\s,\)\]]+|www\.[^\s,\)\]]+)/gi;
+    return text.replace(urlRegex, url => {
+      const href = url.startsWith('http') ? url : 'https://' + url;
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer"
+        style="color:var(--green);text-decoration:underline;word-break:break-all;">${url}</a>`;
+    });
+  }
+
   window.findJobs = async () => {
     if (!gradioClient) return;
     document.getElementById('jobs-loader').classList.add('show');
@@ -491,10 +502,26 @@ Please structure your response clearly with these three sections.`;
     try {
       const result  = await gradioClient.predict("/find_jobs", [identifiedRole || "Software Engineer"]);
       const jobText = extractText(result.data[0]) || "No results found.";
-      const card    = document.createElement('div');
-      card.className = 'job-card';
-      card.innerHTML = '<pre>' + jobText + '</pre>';
-      document.getElementById('jobs-list').appendChild(card);
+
+      // Split into individual job blocks (separated by blank lines or numbered)
+      const blocks = jobText.split(/\n(?=\d+\.|Job \d+)/i).filter(b => b.trim());
+
+      if (blocks.length > 1) {
+        // Render each job as a separate card
+        blocks.forEach(block => {
+          const card = document.createElement('div');
+          card.className = 'job-card';
+          card.innerHTML = '<pre>' + linkify(block.trim()) + '</pre>';
+          document.getElementById('jobs-list').appendChild(card);
+        });
+      } else {
+        // Single block — render as one card with links
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.innerHTML = '<pre>' + linkify(jobText) + '</pre>';
+        document.getElementById('jobs-list').appendChild(card);
+      }
+
     } catch(err) {
       document.getElementById('jobs-list').innerHTML = '<p style="color:var(--text-dim)">⚠️ ' + err.message + '</p>';
     }
